@@ -1,0 +1,25 @@
+packages:
+  - apps/*
+  - packages/*
+  - tools/*
+
+catalog:
+  '@types/node': ^25.5.0
+  '@typescript/native-preview': 7.0.0-dev.20260321.1
+  vite: npm:@voidzero-dev/vite-plus-core@^0.1.13
+  vite-plus: latest
+  vitest: npm:@voidzero-dev/vite-plus-test@^0.1.13
+
+catalogMode: prefer
+
+overrides:
+  vite: 'catalog:'
+  vitest: 'catalog:'
+
+peerDependencyRules:
+  allowAny:
+    - vite
+    - vitest
+  allowedVersions:
+    vite: '*'
+    vitest: '*'
