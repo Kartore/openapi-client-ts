@@ -71,9 +71,6 @@ importers:
         specifier: ^0.25.6
         version: 0.25.6
     devDependencies:
-      '@kartore/openapi-client-ts-example-hono':
-        specifier: workspace:*
-        version: link:../../apps/hono
       '@scalar/openapi-types':
         specifier: ^0.6.1
         version: 0.6.1

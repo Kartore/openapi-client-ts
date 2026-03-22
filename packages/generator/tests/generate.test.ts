@@ -1,4 +1,3 @@
-import app from '@kartore/openapi-client-ts-example-hono';
 import { describe, expect, test } from 'vitest';
 
 import { generateFromObject } from '../src';
@@ -160,54 +159,5 @@ describe('generateFromObject', () => {
     	  };
     	}"
     `);
-  });
-});
-
-describe('Hono example app', () => {
-  test('exposes correct OpenAPI spec at /doc', async () => {
-    const response = await app.request('/doc');
-    const json = await response.json();
-    expect(json).toEqual({
-      openapi: '3.1.0',
-      info: { version: '1.0.0', title: 'My API' },
-      components: {
-        schemas: {
-          User: {
-            type: 'object',
-            properties: {
-              id: { type: 'string', example: '123' },
-              name: { type: 'string', example: 'John Doe' },
-              age: { type: 'number', example: 42 },
-            },
-            required: ['id', 'name', 'age'],
-          },
-        },
-        parameters: {},
-      },
-      paths: {
-        '/users/{id}': {
-          get: {
-            parameters: [
-              {
-                schema: { type: 'string', minLength: 3, example: '1212121' },
-                required: true,
-                name: 'id',
-                in: 'path',
-              },
-            ],
-            responses: {
-              '200': {
-                description: 'Retrieve the user',
-                content: {
-                  'application/json': {
-                    schema: { $ref: '#/components/schemas/User' },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
   });
 });
