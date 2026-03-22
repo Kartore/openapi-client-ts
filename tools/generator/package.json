@@ -12,12 +12,16 @@
     "type": "git",
     "url": "git+https://github.com/author/library.git"
   },
+  "bin": {
+    "openapi-gen": "./dist/cli.mjs"
+  },
   "files": [
     "dist"
   ],
   "type": "module",
   "exports": {
     ".": "./dist/index.mjs",
+    "./cli": "./dist/cli.mjs",
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -31,6 +35,7 @@
     "prepublishOnly": "vp run build"
   },
   "dependencies": {
+    "@scalar/json-magic": "^0.12.4",
     "@scalar/openapi-parser": "^0.25.6"
   },
   "devDependencies": {

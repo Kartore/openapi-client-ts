@@ -6,12 +6,6 @@ settings:
 
 catalogs:
   default:
-    '@scalar/openapi-parser':
-      specifier: ^0.25.6
-      version: 0.25.6
-    '@scalar/openapi-types':
-      specifier: ^0.6.1
-      version: 0.6.1
     '@types/node':
       specifier: ^25.5.0
       version: 25.5.0
@@ -64,15 +58,18 @@ importers:
 
   tools/generator:
     dependencies:
+      '@scalar/json-magic':
+        specifier: ^0.12.4
+        version: 0.12.4
       '@scalar/openapi-parser':
-        specifier: 'catalog:'
+        specifier: ^0.25.6
         version: 0.25.6
     devDependencies:
       '@openapi-client-ts/example-hono':
         specifier: workspace:*
         version: link:../../apps/hono
       '@scalar/openapi-types':
-        specifier: 'catalog:'
+        specifier: ^0.6.1
         version: 0.6.1
       '@types/node':
         specifier: 'catalog:'
