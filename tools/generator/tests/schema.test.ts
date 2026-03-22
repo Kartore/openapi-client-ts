@@ -67,36 +67,61 @@ describe('schemaToTypeString', () => {
       );
     });
     test('required property has no ? modifier', () => {
-      const result = schemaToTypeString({
-        type: 'object',
-        properties: { id: { type: 'string' } },
-        required: ['id'],
-      });
-      expect(result).toContain('id: string;');
-      expect(result).not.toContain('id?');
+      expect(
+        schemaToTypeString({
+          type: 'object',
+          properties: { id: { type: 'string' } },
+          required: ['id'],
+        })
+      ).toMatchInlineSnapshot(`
+      	"{
+      	  id: string;
+      	}"
+      `);
     });
     test('optional property has ? modifier', () => {
-      const result = schemaToTypeString({
-        type: 'object',
-        properties: { name: { type: 'string' } },
-      });
-      expect(result).toContain('name?: string;');
+      expect(
+        schemaToTypeString({
+          type: 'object',
+          properties: { name: { type: 'string' } },
+        })
+      ).toMatchInlineSnapshot(`
+      	"{
+      	  name?: string;
+      	}"
+      `);
     });
     test('property with description adds JSDoc', () => {
-      const result = schemaToTypeString({
-        type: 'object',
-        properties: { id: { type: 'string', description: 'The user ID' } },
-        required: ['id'],
-      });
-      expect(result).toContain('@description The user ID');
+      expect(
+        schemaToTypeString({
+          type: 'object',
+          properties: { id: { type: 'string', description: 'The user ID' } },
+          required: ['id'],
+        })
+      ).toMatchInlineSnapshot(`
+      	"{
+      	  /**
+      	   * @description The user ID
+      	   */
+      	  id: string;
+      	}"
+      `);
     });
     test('property with example adds JSDoc @example', () => {
-      const result = schemaToTypeString({
-        type: 'object',
-        properties: { age: { type: 'number', example: 42 } },
-        required: ['age'],
-      });
-      expect(result).toContain('@example 42');
+      expect(
+        schemaToTypeString({
+          type: 'object',
+          properties: { age: { type: 'number', example: 42 } },
+          required: ['age'],
+        })
+      ).toMatchInlineSnapshot(`
+      	"{
+      	  /**
+      	   * @example 42
+      	   */
+      	  age: number;
+      	}"
+      `);
     });
   });
 
@@ -124,18 +149,26 @@ describe('schemaToTypeString', () => {
       ).toBe('string[] | null');
     });
     test('nullable object becomes {...} | null', () => {
-      const result = schemaToTypeString({
-        type: 'object',
-        properties: { id: { type: 'string' } },
-        required: ['id'],
-        nullable: true,
-      });
-      expect(result).toContain('| null');
+      expect(
+        schemaToTypeString({
+          type: 'object',
+          properties: { id: { type: 'string' } },
+          required: ['id'],
+          nullable: true,
+        })
+      ).toMatchInlineSnapshot(`
+      	"{
+      	  id: string;
+      	} | null"
+      `);
     });
     test('nullable: false has no effect', () => {
       expect(schemaToTypeString({ type: 'string', nullable: false })).toBe(
         'string'
       );
+    });
+    test('nullable alone (no type) returns null', () => {
+      expect(schemaToTypeString({ nullable: true })).toBe('null');
     });
   });
 
@@ -165,49 +198,88 @@ describe('schemaToTypeString', () => {
         })
       ).toBe('Cat | Dog');
     });
+    test('anyOf with unknown sub-schema filters unknown from union', () => {
+      expect(
+        schemaToTypeString({
+          anyOf: [
+            { type: 'array', items: { type: 'number' } },
+            { nullable: true },
+            { nullable: true },
+          ],
+        })
+      ).toBe('number[] | null');
+    });
+    test('anyOf where all parts are unknown stays unknown', () => {
+      expect(schemaToTypeString({ anyOf: [{}, {}] })).toBe('unknown');
+    });
   });
 });
 
 describe('generateTypes', () => {
   test('generates export type declaration', () => {
-    const result = generateTypes({
-      User: {
-        type: 'object',
-        properties: { id: { type: 'string' } },
-        required: ['id'],
-      },
-    });
-    expect(result).toContain('export type User =');
-    expect(result).toContain('id: string;');
+    expect(
+      generateTypes({
+        User: {
+          type: 'object',
+          properties: { id: { type: 'string' } },
+          required: ['id'],
+        },
+      })
+    ).toMatchInlineSnapshot(`
+    	"/**
+    	 * User
+    	 */
+    	export type User = {
+    	  id: string;
+    	};"
+    `);
   });
 
   test('uses description as JSDoc when present', () => {
-    const result = generateTypes({
-      User: { type: 'object', properties: {}, description: 'A platform user' },
-    });
-    expect(result).toContain('* A platform user');
-  });
-
-  test('falls back to schema name as JSDoc when no description', () => {
-    const result = generateTypes({ User: { type: 'object', properties: {} } });
-    expect(result).toContain('* User');
+    expect(
+      generateTypes({
+        User: {
+          type: 'object',
+          properties: {},
+          description: 'A platform user',
+        },
+      })
+    ).toMatchInlineSnapshot(`
+    	"/**
+    	 * A platform user
+    	 */
+    	export type User = Record<string, unknown>;"
+    `);
   });
 
   test('includes @example in JSDoc when schema has example', () => {
-    const result = generateTypes({
-      Status: { type: 'string', example: 'active' },
-    });
-    expect(result).toContain('@example "active"');
+    expect(generateTypes({ Status: { type: 'string', example: 'active' } }))
+      .toMatchInlineSnapshot(`
+    	"/**
+    	 * Status
+    	 * @example "active"
+    	 */
+    	export type Status = string;"
+    `);
   });
 
   test('multiple schemas are joined with a blank line', () => {
-    const result = generateTypes({
-      User: { type: 'object', properties: {} },
-      Post: { type: 'object', properties: {} },
-    });
-    expect(result).toContain('export type User');
-    expect(result).toContain('export type Post');
-    expect(result).toContain('\n\n');
+    expect(
+      generateTypes({
+        User: { type: 'object', properties: {} },
+        Post: { type: 'object', properties: {} },
+      })
+    ).toMatchInlineSnapshot(`
+    	"/**
+    	 * User
+    	 */
+    	export type User = Record<string, unknown>;
+
+    	/**
+    	 * Post
+    	 */
+    	export type Post = Record<string, unknown>;"
+    `);
   });
 
   test('empty schemas returns empty string', () => {

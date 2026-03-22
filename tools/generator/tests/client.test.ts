@@ -93,227 +93,510 @@ describe('buildUrlExpression', () => {
 
 describe('generateClient', () => {
   test('empty paths produces minimal apiClient', () => {
-    expect(generateClient({})).toBe(
-      "export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {\n  return {};\n}"
-    );
-  });
-
-  test('exports apiClient function', () => {
-    const result = generateClient({ '/users': { get: { responses: {} } } });
-    expect(result).toContain('export function apiClient(baseUrl: string,');
-    expect(result).toContain(
-      'const _fetch = clientOptions?.fetch ?? globalThis.fetch'
-    );
-    expect(result).toContain('const _baseInit = clientOptions?.init');
+    expect(generateClient({})).toMatchInlineSnapshot(`
+    	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+    	  return {};
+    	}"
+    `);
   });
 
   describe('static segments', () => {
     test('becomes an object property with key and path', () => {
-      const result = generateClient({ '/users': { get: { responses: {} } } });
-      expect(result).toContain('users: {');
-      expect(result).toContain("key: ['users'] as const");
-      expect(result).toContain("path: '/users' as const");
+      expect(generateClient({ '/users': { get: { responses: {} } } }))
+        .toMatchInlineSnapshot(`
+      	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+      	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
+      	  const _baseInit = clientOptions?.init;
+      	  return {
+      	    users: {
+      	      key: ['users'] as const,
+      	      path: '/users' as const,
+      	      /**
+      	       * @method GET
+      	       * @path /users
+      	       */
+      	      get: (params?: {
+      	          init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
+      	        }): Promise<void> => {
+      	        const url = \`\${baseUrl}/users\`;
+      	        return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
+      	      },
+      	    },
+      	  };
+      	}"
+      `);
     });
 
     test('segment with hyphens is quoted as property key', () => {
-      const result = generateClient({
-        '/auth/verify-email': { post: { responses: {} } },
-      });
-      expect(result).toContain("'verify-email': {");
-      expect(result).toContain("key: ['auth', 'verify-email'] as const");
+      expect(
+        generateClient({ '/auth/verify-email': { post: { responses: {} } } })
+      ).toMatchInlineSnapshot(`
+      	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+      	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
+      	  const _baseInit = clientOptions?.init;
+      	  return {
+      	    auth: {
+      	      'verify-email': {
+      	        key: ['auth', 'verify-email'] as const,
+      	        path: '/auth/verify-email' as const,
+      	        /**
+      	         * @method POST
+      	         * @path /auth/verify-email
+      	         */
+      	        post: (params?: {
+      	            init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
+      	          }): Promise<void> => {
+      	          const url = \`\${baseUrl}/auth/verify-email\`;
+      	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'POST' }).then(() => undefined);
+      	        },
+      	      },
+      	    },
+      	  };
+      	}"
+      `);
     });
 
     test('segment starting with underscore or dollar is not quoted', () => {
-      const result = generateClient({
-        '/api/_public': { get: { responses: {} } },
-      });
-      expect(result).toContain('_public: {');
+      expect(generateClient({ '/api/_public': { get: { responses: {} } } }))
+        .toMatchInlineSnapshot(`
+      	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+      	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
+      	  const _baseInit = clientOptions?.init;
+      	  return {
+      	    api: {
+      	      _public: {
+      	        key: ['api', '_public'] as const,
+      	        path: '/api/_public' as const,
+      	        /**
+      	         * @method GET
+      	         * @path /api/_public
+      	         */
+      	        get: (params?: {
+      	            init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
+      	          }): Promise<void> => {
+      	          const url = \`\${baseUrl}/api/_public\`;
+      	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
+      	        },
+      	      },
+      	    },
+      	  };
+      	}"
+      `);
     });
   });
 
   describe('dynamic segments', () => {
     test('becomes a function that returns an object with key and path', () => {
-      const result = generateClient({
-        '/users/{id}': {
-          get: {
-            parameters: [
-              { in: 'path', name: 'id', schema: { type: 'string' } },
-            ],
-            responses: {},
+      expect(
+        generateClient({
+          '/users/{id}': {
+            get: {
+              parameters: [
+                { in: 'path', name: 'id', schema: { type: 'string' } },
+              ],
+              responses: {},
+            },
           },
-        },
-      });
-      expect(result).toContain('id: (id: string) => ({');
-      expect(result).toContain("key: ['users', id] as const");
-      expect(result).toContain('path: `/users/${id}`');
+        })
+      ).toMatchInlineSnapshot(`
+      	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+      	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
+      	  const _baseInit = clientOptions?.init;
+      	  return {
+      	    users: {
+      	      id: (id: string) => ({
+      	        key: ['users', id] as const,
+      	        path: \`/users/\${id}\`,
+      	        /**
+      	         * @method GET
+      	         * @path /users/{id}
+      	         */
+      	        get: (params?: {
+      	            init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
+      	          }): Promise<void> => {
+      	          const url = \`\${baseUrl}/users/\${id}\`;
+      	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
+      	        },
+      	      }),
+      	    },
+      	  };
+      	}"
+      `);
     });
 
     test('uses schema type for param type', () => {
-      const result = generateClient({
-        '/items/{code}': {
-          get: {
-            parameters: [
-              { in: 'path', name: 'code', schema: { type: 'integer' } },
-            ],
-            responses: {},
+      expect(
+        generateClient({
+          '/items/{code}': {
+            get: {
+              parameters: [
+                { in: 'path', name: 'code', schema: { type: 'integer' } },
+              ],
+              responses: {},
+            },
           },
-        },
-      });
-      expect(result).toContain('code: (code: number) => ({');
+        })
+      ).toMatchInlineSnapshot(`
+      	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+      	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
+      	  const _baseInit = clientOptions?.init;
+      	  return {
+      	    items: {
+      	      code: (code: number) => ({
+      	        key: ['items', code] as const,
+      	        path: \`/items/\${code}\`,
+      	        /**
+      	         * @method GET
+      	         * @path /items/{code}
+      	         */
+      	        get: (params?: {
+      	            init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
+      	          }): Promise<void> => {
+      	          const url = \`\${baseUrl}/items/\${code}\`;
+      	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
+      	        },
+      	      }),
+      	    },
+      	  };
+      	}"
+      `);
     });
 
     test('defaults to string when no param schema', () => {
-      const result = generateClient({
-        '/users/{id}': { get: { responses: {} } },
-      });
-      expect(result).toContain('id: (id: string) => ({');
+      expect(generateClient({ '/users/{id}': { get: { responses: {} } } }))
+        .toMatchInlineSnapshot(`
+      	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+      	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
+      	  const _baseInit = clientOptions?.init;
+      	  return {
+      	    users: {
+      	      id: (id: string) => ({
+      	        key: ['users', id] as const,
+      	        path: \`/users/\${id}\`,
+      	        /**
+      	         * @method GET
+      	         * @path /users/{id}
+      	         */
+      	        get: (params?: {
+      	            init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
+      	          }): Promise<void> => {
+      	          const url = \`\${baseUrl}/users/\${id}\`;
+      	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
+      	        },
+      	      }),
+      	    },
+      	  };
+      	}"
+      `);
     });
   });
 
   describe('HTTP methods', () => {
-    test('GET generates typed fetch call with @method JSDoc', () => {
-      const result = generateClient({
-        '/users/{id}': {
-          get: {
-            parameters: [
-              { in: 'path', name: 'id', schema: { type: 'string' } },
-            ],
-            responses: {
-              '200': {
-                content: {
-                  'application/json': {
-                    schema: { $ref: '#/components/schemas/User' },
+    test('GET with response schema generates typed Promise return', () => {
+      expect(
+        generateClient({
+          '/users/{id}': {
+            get: {
+              parameters: [
+                { in: 'path', name: 'id', schema: { type: 'string' } },
+              ],
+              responses: {
+                '200': {
+                  content: {
+                    'application/json': {
+                      schema: { $ref: '#/components/schemas/User' },
+                    },
                   },
                 },
               },
             },
           },
-        },
-      });
-      expect(result).toContain('* @method GET');
-      expect(result).toContain('get: (params?: {');
-      expect(result).toContain("init?: Omit<RequestInit, 'headers'>");
-      expect(result).toContain('): Promise<User> => {');
-      expect(result).toContain('_fetch(url, { ..._baseInit, ...params?.init');
-      expect(result).toContain("method: 'GET'");
-      expect(result).toContain('.then((r) => r.json()) as Promise<User>');
+        })
+      ).toMatchInlineSnapshot(`
+      	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+      	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
+      	  const _baseInit = clientOptions?.init;
+      	  return {
+      	    users: {
+      	      id: (id: string) => ({
+      	        key: ['users', id] as const,
+      	        path: \`/users/\${id}\`,
+      	        /**
+      	         * @method GET
+      	         * @path /users/{id}
+      	         */
+      	        get: (params?: {
+      	            init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
+      	          }): Promise<User> => {
+      	          const url = \`\${baseUrl}/users/\${id}\`;
+      	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then((r) => r.json()) as Promise<User>;
+      	        },
+      	      }),
+      	    },
+      	  };
+      	}"
+      `);
     });
 
     test('void return type when no success response', () => {
-      const result = generateClient({ '/ping': { get: { responses: {} } } });
-      expect(result).toContain('get: (params?: {');
-      expect(result).toContain('): Promise<void> => {');
-      expect(result).toContain('.then(() => undefined)');
+      expect(generateClient({ '/ping': { get: { responses: {} } } }))
+        .toMatchInlineSnapshot(`
+      	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+      	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
+      	  const _baseInit = clientOptions?.init;
+      	  return {
+      	    ping: {
+      	      key: ['ping'] as const,
+      	      path: '/ping' as const,
+      	      /**
+      	       * @method GET
+      	       * @path /ping
+      	       */
+      	      get: (params?: {
+      	          init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
+      	        }): Promise<void> => {
+      	        const url = \`\${baseUrl}/ping\`;
+      	        return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
+      	      },
+      	    },
+      	  };
+      	}"
+      `);
     });
 
     test('POST with request body generates params with body field', () => {
-      const result = generateClient({
-        '/users': {
-          post: {
-            requestBody: {
-              content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: { name: { type: 'string' } },
-                    required: ['name'],
+      expect(
+        generateClient({
+          '/users': {
+            post: {
+              requestBody: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: { name: { type: 'string' } },
+                      required: ['name'],
+                    },
                   },
                 },
               },
+              responses: {},
             },
-            responses: {},
           },
-        },
-      });
-      expect(result).toContain('post: (params:');
-      expect(result).toContain('body:');
-      expect(result).toContain("method: 'POST'");
-      expect(result).toContain('JSON.stringify(params.body)');
+        })
+      ).toMatchInlineSnapshot(`
+      	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+      	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
+      	  const _baseInit = clientOptions?.init;
+      	  return {
+      	    users: {
+      	      key: ['users'] as const,
+      	      path: '/users' as const,
+      	      /**
+      	       * @method POST
+      	       * @path /users
+      	       */
+      	      post: (params: {
+      	          body: { name: string };
+      	          init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
+      	        }): Promise<void> => {
+      	        const url = \`\${baseUrl}/users\`;
+      	        return _fetch(url, { ..._baseInit, ...params?.init, headers: { 'Content-Type': 'application/json', ..._baseInit?.headers, ...params?.init?.headers }, method: 'POST', body: JSON.stringify(params.body) }).then(() => undefined);
+      	      },
+      	    },
+      	  };
+      	}"
+      `);
     });
   });
 
   describe('query parameters', () => {
     test('optional query param generates URLSearchParams block and ? type', () => {
-      const result = generateClient({
-        '/users': {
-          get: {
-            parameters: [
-              {
-                in: 'query',
-                name: 'page',
-                schema: { type: 'integer' },
-                required: false,
-              },
-            ],
-            responses: {},
+      expect(
+        generateClient({
+          '/users': {
+            get: {
+              parameters: [
+                {
+                  in: 'query',
+                  name: 'page',
+                  schema: { type: 'integer' },
+                  required: false,
+                },
+              ],
+              responses: {},
+            },
           },
-        },
-      });
-      expect(result).toContain('get: (params?:');
-      expect(result).toContain('page?: number;');
-      expect(result).toContain("init?: Omit<RequestInit, 'headers'>");
-      expect(result).toContain('URLSearchParams');
-      expect(result).toContain("searchParams.set('page'");
+        })
+      ).toMatchInlineSnapshot(`
+      	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+      	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
+      	  const _baseInit = clientOptions?.init;
+      	  return {
+      	    users: {
+      	      key: ['users'] as const,
+      	      path: '/users' as const,
+      	      /**
+      	       * @method GET
+      	       * @path /users
+      	       */
+      	      get: (params?: {
+      	          page?: number;
+      	          init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
+      	        }): Promise<void> => {
+      	        const searchParams = new URLSearchParams();
+      	        if (params?.page !== undefined) searchParams.set('page', String(params.page));
+      	        const qs = searchParams.toString();
+      	        const url = \`\${baseUrl}/users\` + (qs ? \`?\${qs}\` : '');
+      	        return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
+      	      },
+      	    },
+      	  };
+      	}"
+      `);
     });
 
-    test('required query param generates no ? modifier', () => {
-      const result = generateClient({
-        '/users': {
-          get: {
-            parameters: [
-              {
-                in: 'query',
-                name: 'q',
-                schema: { type: 'string' },
-                required: true,
-              },
-            ],
-            responses: {},
+    test('required query param makes params non-optional', () => {
+      expect(
+        generateClient({
+          '/users': {
+            get: {
+              parameters: [
+                {
+                  in: 'query',
+                  name: 'q',
+                  schema: { type: 'string' },
+                  required: true,
+                },
+              ],
+              responses: {},
+            },
           },
-        },
-      });
-      expect(result).toContain('q: string;');
-      expect(result).not.toContain('q?: string;');
+        })
+      ).toMatchInlineSnapshot(`
+      	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+      	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
+      	  const _baseInit = clientOptions?.init;
+      	  return {
+      	    users: {
+      	      key: ['users'] as const,
+      	      path: '/users' as const,
+      	      /**
+      	       * @method GET
+      	       * @path /users
+      	       */
+      	      get: (params: {
+      	          q: string;
+      	          init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
+      	        }): Promise<void> => {
+      	        const searchParams = new URLSearchParams();
+      	        if (params?.q !== undefined) searchParams.set('q', String(params.q));
+      	        const qs = searchParams.toString();
+      	        const url = \`\${baseUrl}/users\` + (qs ? \`?\${qs}\` : '');
+      	        return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
+      	      },
+      	    },
+      	  };
+      	}"
+      `);
     });
   });
 
   describe('node with both operations and children', () => {
-    test('generates get on users and id child accessor', () => {
-      const result = generateClient({
-        '/users': { get: { responses: {} } },
-        '/users/{id}': {
-          get: {
-            parameters: [
-              { in: 'path', name: 'id', schema: { type: 'string' } },
-            ],
-            responses: {},
+    test('generates operation on parent and child accessor', () => {
+      expect(
+        generateClient({
+          '/users': { get: { responses: {} } },
+          '/users/{id}': {
+            get: {
+              parameters: [
+                { in: 'path', name: 'id', schema: { type: 'string' } },
+              ],
+              responses: {},
+            },
           },
-        },
-      });
-      expect(result).toContain('users: {');
-      expect(result).toContain('get: (params?: {');
-      expect(result).toContain('id: (id: string) => ({');
+        })
+      ).toMatchInlineSnapshot(`
+      	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+      	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
+      	  const _baseInit = clientOptions?.init;
+      	  return {
+      	    users: {
+      	      key: ['users'] as const,
+      	      path: '/users' as const,
+      	      /**
+      	       * @method GET
+      	       * @path /users
+      	       */
+      	      get: (params?: {
+      	          init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
+      	        }): Promise<void> => {
+      	        const url = \`\${baseUrl}/users\`;
+      	        return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
+      	      },
+      	      id: (id: string) => ({
+      	        key: ['users', id] as const,
+      	        path: \`/users/\${id}\`,
+      	        /**
+      	         * @method GET
+      	         * @path /users/{id}
+      	         */
+      	        get: (params?: {
+      	            init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
+      	          }): Promise<void> => {
+      	          const url = \`\${baseUrl}/users/\${id}\`;
+      	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
+      	        },
+      	      }),
+      	    },
+      	  };
+      	}"
+      `);
     });
   });
 
   describe('deep nesting', () => {
     test('three-level path with two dynamic segments', () => {
-      const result = generateClient({
-        '/orgs/{orgId}/members/{memberId}': {
-          get: {
-            parameters: [
-              { in: 'path', name: 'orgId', schema: { type: 'string' } },
-              { in: 'path', name: 'memberId', schema: { type: 'string' } },
-            ],
-            responses: {},
+      expect(
+        generateClient({
+          '/orgs/{orgId}/members/{memberId}': {
+            get: {
+              parameters: [
+                { in: 'path', name: 'orgId', schema: { type: 'string' } },
+                { in: 'path', name: 'memberId', schema: { type: 'string' } },
+              ],
+              responses: {},
+            },
           },
-        },
-      });
-      expect(result).toContain('orgId: (orgId: string) => ({');
-      expect(result).toContain('memberId: (memberId: string) => ({');
-      expect(result).toContain(
-        '`${baseUrl}/orgs/${orgId}/members/${memberId}`'
-      );
+        })
+      ).toMatchInlineSnapshot(`
+      	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+      	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
+      	  const _baseInit = clientOptions?.init;
+      	  return {
+      	    orgs: {
+      	      orgId: (orgId: string) => ({
+      	        members: {
+      	          memberId: (memberId: string) => ({
+      	            key: ['orgs', orgId, 'members', memberId] as const,
+      	            path: \`/orgs/\${orgId}/members/\${memberId}\`,
+      	            /**
+      	             * @method GET
+      	             * @path /orgs/{orgId}/members/{memberId}
+      	             */
+      	            get: (params?: {
+      	                init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
+      	              }): Promise<void> => {
+      	              const url = \`\${baseUrl}/orgs/\${orgId}/members/\${memberId}\`;
+      	              return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
+      	            },
+      	          }),
+      	        },
+      	      }),
+      	    },
+      	  };
+      	}"
+      `);
     });
   });
 });
