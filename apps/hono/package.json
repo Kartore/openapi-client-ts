@@ -1,5 +1,5 @@
 {
-  "name": "@openapi-client-ts/example-hono",
+  "name": "@kartore/openapi-client-ts-example-hono",
   "type": "module",
   "main": "src/index.ts",
   "scripts": {

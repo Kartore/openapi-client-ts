@@ -1,16 +1,16 @@
 {
-  "name": "utils",
+  "name": "@kartore/openapi-client-ts-generator",
   "version": "0.0.0",
   "description": "A starter for creating a TypeScript package.",
-  "homepage": "https://github.com/author/library#readme",
+  "homepage": "https://github.com/kartore/openapi-client-ts/packages/generator#readme",
   "bugs": {
-    "url": "https://github.com/author/library/issues"
+    "url": "https://github.com/kartore/openapi-client-ts/issues"
   },
   "license": "MIT",
-  "author": "Author Name <author.name@mail.com>",
+  "author": "Akane Kamiseto <akane@nekoyasan.me>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/author/library.git"
+    "url": "git+https://github.com/kartore/openapi-client-ts.git"
   },
   "bin": {
     "openapi-gen": "./dist/cli.mjs"
@@ -48,8 +48,5 @@
     "bumpp": "^11.0.1",
     "vite-plus": "catalog:",
     "vitest": "npm:@voidzero-dev/vite-plus-test@^0.1.13"
-  },
-  "inlinedDependencies": {
-    "@scalar/openapi-types": "0.6.1"
   }
 }

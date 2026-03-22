@@ -127,7 +127,7 @@ describe('generateClient', () => {
       `);
     });
 
-    test('segment with hyphens is quoted as property key', () => {
+    test('segment with hyphens is converted to camelCase', () => {
       expect(
         generateClient({ '/auth/verify-email': { post: { responses: {} } } })
       ).toMatchInlineSnapshot(`
@@ -136,7 +136,7 @@ describe('generateClient', () => {
       	  const _baseInit = clientOptions?.init;
       	  return {
       	    auth: {
-      	      'verify-email': {
+      	      verifyEmail: {
       	        key: ['auth', 'verify-email'] as const,
       	        path: '/auth/verify-email' as const,
       	        /**

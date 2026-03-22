@@ -98,7 +98,7 @@ describe('generateQuery', () => {
       `);
     });
 
-    test('segment with hyphens is quoted as property key', () => {
+    test('segment with hyphens is converted to camelCase', () => {
       expect(
         generateQuery(
           { '/auth/verify-email': { post: { responses: {} } } },
@@ -115,18 +115,18 @@ describe('generateQuery', () => {
       	export function queryClient(client: ApiClient) {
       	  return {
       	    auth: {
-      	      'verify-email': {
-      	        key: client.auth['verify-email'].key,
-      	        path: client.auth['verify-email'].path,
+      	      verifyEmail: {
+      	        key: client.auth.verifyEmail.key,
+      	        path: client.auth.verifyEmail.path,
       	        /**
       	         * @method POST
       	         * @path /auth/verify-email
       	         */
       	        post: (options?: MutateOptions) => ({
-      	          mutationKey: [...client.auth['verify-email'].key, 'post'],
+      	          mutationKey: [...client.auth.verifyEmail.key, 'post'],
       	          mutationFn: (params?: {
       	            init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
-      	          }) => client.auth['verify-email'].post(params),
+      	          }) => client.auth.verifyEmail.post(params),
       	          ...options,
       	        }),
       	      },

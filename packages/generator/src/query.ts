@@ -31,14 +31,16 @@ const CLIENT_INIT_TYPE =
 
 const QUERY_METHODS = new Set(['get', 'head']);
 
-function quotePropKey(name: string): string {
-  return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(name) ? name : `'${name}'`;
+function segmentToPropKey(segment: string): string {
+  const key = segment.replace(/-(.)/g, (_, c: string) => c.toUpperCase());
+  return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) ? key : `'${key}'`;
 }
 
-function accessProp(chain: string, prop: string): string {
-  return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(prop)
-    ? `${chain}.${prop}`
-    : `${chain}['${prop}']`;
+function segmentToChain(chain: string, segment: string): string {
+  const key = segment.replace(/-(.)/g, (_, c: string) => c.toUpperCase());
+  return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key)
+    ? `${chain}.${key}`
+    : `${chain}['${key}']`;
 }
 
 function generateQueryNodeLines(
@@ -156,8 +158,8 @@ function renderQueryNodeEntry(
     lines.push(`${indent}}),`);
   } else {
     const segment = node.segment;
-    const childChain = accessProp(parentChain, segment);
-    lines.push(`${indent}${quotePropKey(segment)}: {`);
+    const childChain = segmentToChain(parentChain, segment);
+    lines.push(`${indent}${segmentToPropKey(segment)}: {`);
     lines.push(
       ...generateQueryNodeLines(node, pathParts, childChain, contentIndent)
     );

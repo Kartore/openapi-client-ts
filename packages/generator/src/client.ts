@@ -33,8 +33,9 @@ export function buildUrlExpression(pathParts: string[]): string {
   return `\`\${baseUrl}/${segmentsToTemplateParts(pathParts).join('/')}\``;
 }
 
-function quotePropKey(name: string): string {
-  return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(name) ? name : `'${name}'`;
+function segmentToPropKey(segment: string): string {
+  const key = segment.replace(/-(.)/g, (_, c: string) => c.toUpperCase());
+  return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key) ? key : `'${key}'`;
 }
 
 const CLIENT_INIT_TYPE =
@@ -60,7 +61,7 @@ function renderNodeEntry(
     lines.push(`${indent}}),`);
   } else {
     const segment = node.segment;
-    lines.push(`${indent}${quotePropKey(segment)}: {`);
+    lines.push(`${indent}${segmentToPropKey(segment)}: {`);
     lines.push(...generateNodeLines(node, keyItems, pathParts, contentIndent));
     lines.push(`${indent}},`);
   }
