@@ -76,8 +76,10 @@ function generateNodeLines(
   const bodyIndent = indent + '  ';
   const urlExpr = buildUrlExpression(pathParts);
 
-  lines.push(`${indent}key: ${buildKeyExpression(keyItems)},`);
-  lines.push(`${indent}path: ${buildPathValue(pathParts)},`);
+  if (Object.keys(node.operations).length > 0) {
+    lines.push(`${indent}key: ${buildKeyExpression(keyItems)},`);
+    lines.push(`${indent}path: ${buildPathValue(pathParts)},`);
+  }
 
   for (const [method, operation] of Object.entries(node.operations)) {
     const returnType = getResponseType(operation);
@@ -114,7 +116,7 @@ function generateNodeLines(
       lines.push(`${bodyIndent}const searchParams = new URLSearchParams();`);
       for (const qp of queryParams) {
         lines.push(
-          `${bodyIndent}if (params.${qp.name} !== undefined) searchParams.set('${qp.name}', String(params.${qp.name}));`
+          `${bodyIndent}if (params?.${qp.name} !== undefined) searchParams.set('${qp.name}', String(params.${qp.name}));`
         );
       }
       lines.push(`${bodyIndent}const qs = searchParams.toString();`);

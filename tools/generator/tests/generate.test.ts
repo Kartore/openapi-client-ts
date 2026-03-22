@@ -54,7 +54,6 @@ describe('generateFromObject', () => {
     expect(result.client).toContain(
       'export function apiClient(baseUrl: string,'
     );
-    expect(result.client).toContain("key: ['users'] as const");
     expect(result.client).toContain('id: (id: string) => ({');
     expect(result.client).toContain("key: ['users', id] as const");
     expect(result.client).toContain('get: (params?: {');
@@ -143,8 +142,6 @@ describe('generateFromObject', () => {
     	  const _baseInit = clientOptions?.init;
     	  return {
     	    users: {
-    	      key: ['users'] as const,
-    	      path: '/users' as const,
     	      id: (id: string) => ({
     	        key: ['users', id] as const,
     	        path: \`/users/\${id}\`,

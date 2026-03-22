@@ -24,19 +24,35 @@ export function schemaToTypeString(
   const nullable = schema.nullable === true;
   const withNull = (t: string) => (nullable ? `${t} | null` : t);
 
+  // OpenAPI 3.0 pattern: { nullable: true } alone (no type/ref/composition) means "null"
+  if (
+    nullable &&
+    !schema.$ref &&
+    !schema.type &&
+    !schema.oneOf &&
+    !schema.anyOf &&
+    !schema.allOf &&
+    !schema.properties &&
+    !schema.items
+  ) {
+    return 'null';
+  }
+
   if (schema.$ref) {
     return withNull(schema.$ref.split('/').pop() ?? 'unknown');
   }
 
   if (schema.oneOf) {
-    return withNull(
-      schema.oneOf.map((s) => schemaToTypeString(s, inline)).join(' | ')
-    );
+    const parts = schema.oneOf.map((s) => schemaToTypeString(s, inline));
+    const known = parts.filter((p) => p !== 'unknown');
+    const unique = [...new Set(known.length > 0 ? known : parts)];
+    return withNull(unique.join(' | '));
   }
   if (schema.anyOf) {
-    return withNull(
-      schema.anyOf.map((s) => schemaToTypeString(s, inline)).join(' | ')
-    );
+    const parts = schema.anyOf.map((s) => schemaToTypeString(s, inline));
+    const known = parts.filter((p) => p !== 'unknown');
+    const unique = [...new Set(known.length > 0 ? known : parts)];
+    return withNull(unique.join(' | '));
   }
   if (schema.allOf) {
     return withNull(
@@ -79,7 +95,9 @@ export function schemaToTypeString(
     })
     .filter(Boolean);
 
-  return withNull(tsTypes.length > 0 ? tsTypes.join(' | ') : 'unknown');
+  const knownTypes = tsTypes.filter((t) => t !== 'unknown');
+  const resolved = knownTypes.length > 0 ? knownTypes : tsTypes;
+  return withNull(resolved.length > 0 ? resolved.join(' | ') : 'unknown');
 }
 
 function objectSchemaToTypeString(schema: SchemaLike, inline = false): string {

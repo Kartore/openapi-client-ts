@@ -46,5 +46,8 @@
     "bumpp": "^11.0.1",
     "vite-plus": "catalog:",
     "vitest": "npm:@voidzero-dev/vite-plus-test@^0.1.13"
+  },
+  "inlinedDependencies": {
+    "@scalar/openapi-types": "0.6.1"
   }
 }

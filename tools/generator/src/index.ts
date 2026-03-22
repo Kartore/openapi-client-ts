@@ -2,16 +2,20 @@ import { upgrade, validate } from '@scalar/openapi-parser';
 import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types';
 
 import { generateClient } from './client';
+import { generateQuery } from './query';
 import { generateTypes } from './schema';
 
 export { generateTypes } from './schema';
 export { generateClient } from './client';
+export { generateQuery } from './query';
 
 export interface GenerateResult {
   /** TypeScript type definitions generated from components.schemas */
   types: string;
   /** TypeScript apiClient factory function generated from paths */
   client: string;
+  /** TanStack Query helper functions generated from paths */
+  query: string;
 }
 
 function isSupportedVersion(spec: OpenAPI.Document): boolean {
@@ -47,5 +51,6 @@ export async function generateFromObject(
   return {
     types: generateTypes(schemas),
     client: generateClient(paths),
+    query: generateQuery(paths),
   };
 }

@@ -22,6 +22,7 @@ Options:
   -o, --output <dir>       Output directory (default: ".")
   --types <filename>       Types output filename (default: "types.ts")
   --client <filename>      Client output filename (default: "client.ts")
+  --query <filename>       TanStack Query helpers output filename (default: "query.ts")
   -h, --help               Show this help message
 `;
 
@@ -31,6 +32,7 @@ const { values, positionals } = parseArgs({
     output: { type: 'string', short: 'o', default: '.' },
     types: { type: 'string', default: 'types.ts' },
     client: { type: 'string', default: 'client.ts' },
+    query: { type: 'string', default: 'query.ts' },
     help: { type: 'boolean', short: 'h', default: false },
   },
   allowPositionals: true,
@@ -45,6 +47,7 @@ const input = positionals[0];
 const outputDir = resolve(values.output!);
 const typesFile = resolve(outputDir, values.types!);
 const clientFile = resolve(outputDir, values.client!);
+const queryFile = resolve(outputDir, values.query!);
 
 try {
   const spec = await bundle(input, {
@@ -52,7 +55,7 @@ try {
     plugins: [fetchUrls(), readFiles(), parseJson(), parseYaml()],
   });
 
-  const { types, client } = await generateFromObject(
+  const { types, client, query } = await generateFromObject(
     spec as Record<string, unknown>
   );
 
@@ -60,10 +63,12 @@ try {
   await Promise.all([
     writeFile(typesFile, types, 'utf8'),
     writeFile(clientFile, client, 'utf8'),
+    writeFile(queryFile, query, 'utf8'),
   ]);
 
   console.info(`types  → ${typesFile}`);
   console.info(`client → ${clientFile}`);
+  console.info(`query  → ${queryFile}`);
 } catch (err) {
   console.error(`error: ${err instanceof Error ? err.message : String(err)}`);
   process.exit(1);
