@@ -1,23 +1,25 @@
-# vite-plus-starter
+# openapi-client-ts-generator
 
-A starter for creating a Vite Plus project.
+Generate TypeScript types and API client (and query client) from OpenAPI specifications.
 
-## Development
+## Usage
 
-- Install dependencies:
+### Basic
 
 ```bash
-vp install
+npx openapi-gen <input-file> -o <output-dir>
 ```
 
-- Run the unit tests:
+### With options
+
+for svelte-query client generation:
 
 ```bash
-vp test
+npx openapi-gen <input-file> -o <output-dir> --tnstack-query svelte
 ```
 
-- Build the library:
+for react-query client generation:
 
 ```bash
-vp pack
+npx openapi-gen <input-file> -o <output-dir> --tnstack-query react
 ```
