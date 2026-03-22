@@ -1,40 +1,54 @@
-import type { AnyObject } from '@scalar/openapi-parser';
+import type { OpenAPIV3_1 } from '@scalar/openapi-types';
 
-export function schemaToTypeString(schema: AnyObject, inline = false): string {
-  if (!schema) return 'unknown';
+/** Recursive schema type compatible with OpenAPIV3_1.SchemaObject and plain test objects */
+export type SchemaLike = {
+  $ref?: string;
+  type?: string | string[];
+  nullable?: boolean;
+  description?: string;
+  example?: unknown;
+  properties?: Record<string, SchemaLike>;
+  required?: string[];
+  items?: SchemaLike;
+  oneOf?: SchemaLike[];
+  anyOf?: SchemaLike[];
+  allOf?: SchemaLike[];
+};
+
+export function schemaToTypeString(
+  schema: SchemaLike | boolean,
+  inline = false
+): string {
+  if (!schema || typeof schema === 'boolean') return 'unknown';
 
   const nullable = schema.nullable === true;
   const withNull = (t: string) => (nullable ? `${t} | null` : t);
 
   if (schema.$ref) {
-    return withNull(String(schema.$ref).split('/').pop() ?? 'unknown');
+    return withNull(schema.$ref.split('/').pop() ?? 'unknown');
   }
 
   if (schema.oneOf) {
     return withNull(
-      (schema.oneOf as AnyObject[])
-        .map((s) => schemaToTypeString(s, inline))
-        .join(' | ')
+      schema.oneOf.map((s) => schemaToTypeString(s, inline)).join(' | ')
     );
   }
   if (schema.anyOf) {
     return withNull(
-      (schema.anyOf as AnyObject[])
-        .map((s) => schemaToTypeString(s, inline))
-        .join(' | ')
+      schema.anyOf.map((s) => schemaToTypeString(s, inline)).join(' | ')
     );
   }
   if (schema.allOf) {
     return withNull(
-      (schema.allOf as AnyObject[])
-        .map((s) => schemaToTypeString(s, inline))
-        .join(' & ')
+      schema.allOf.map((s) => schemaToTypeString(s, inline)).join(' & ')
     );
   }
 
-  const types: string[] = Array.isArray(schema.type)
+  const types = Array.isArray(schema.type)
     ? schema.type
-    : [schema.type];
+    : schema.type != null
+      ? [schema.type]
+      : [];
 
   if (types.includes('object') || schema.properties) {
     return withNull(objectSchemaToTypeString(schema, inline));
@@ -42,13 +56,13 @@ export function schemaToTypeString(schema: AnyObject, inline = false): string {
 
   if (types.includes('array')) {
     const itemType = schema.items
-      ? schemaToTypeString(schema.items as AnyObject, inline)
+      ? schemaToTypeString(schema.items, inline)
       : 'unknown';
     return withNull(`${itemType}[]`);
   }
 
   const tsTypes = types
-    .map((t: string) => {
+    .map((t) => {
       switch (t) {
         case 'string':
           return 'string';
@@ -68,9 +82,9 @@ export function schemaToTypeString(schema: AnyObject, inline = false): string {
   return withNull(tsTypes.length > 0 ? tsTypes.join(' | ') : 'unknown');
 }
 
-function objectSchemaToTypeString(schema: AnyObject, inline = false): string {
-  const properties = (schema.properties ?? {}) as Record<string, AnyObject>;
-  const required = new Set<string>((schema.required as string[]) ?? []);
+function objectSchemaToTypeString(schema: SchemaLike, inline = false): string {
+  const properties = schema.properties ?? {};
+  const required = new Set<string>(schema.required ?? []);
 
   if (Object.keys(properties).length === 0) {
     return 'Record<string, unknown>';
@@ -96,7 +110,7 @@ function objectSchemaToTypeString(schema: AnyObject, inline = false): string {
   return `{\n${lines.join('\n')}\n}`;
 }
 
-function buildPropertyJsdoc(schema: AnyObject, inline = false): string {
+function buildPropertyJsdoc(schema: SchemaLike, inline = false): string {
   const parts: string[] = [];
   if (schema.description) parts.push(`@description ${schema.description}`);
   if (schema.example !== undefined)
@@ -107,19 +121,23 @@ function buildPropertyJsdoc(schema: AnyObject, inline = false): string {
   return `  /**\n${lines.join('\n')}\n   */\n`;
 }
 
-function generateSchemaType(name: string, schema: AnyObject): string {
+function generateSchemaType(
+  name: string,
+  schema: OpenAPIV3_1.SchemaObject
+): string {
+  const s = schema as SchemaLike;
   const jsdocLines = ['/**'];
-  jsdocLines.push(
-    schema.description ? ` * ${schema.description}` : ` * ${name}`
-  );
-  if (schema.example !== undefined) {
-    jsdocLines.push(` * @example ${JSON.stringify(schema.example)}`);
+  jsdocLines.push(s.description ? ` * ${s.description}` : ` * ${name}`);
+  if (s.example !== undefined) {
+    jsdocLines.push(` * @example ${JSON.stringify(s.example)}`);
   }
   jsdocLines.push(' */');
-  return `${jsdocLines.join('\n')}\nexport type ${name} = ${schemaToTypeString(schema)};`;
+  return `${jsdocLines.join('\n')}\nexport type ${name} = ${schemaToTypeString(s)};`;
 }
 
-export function generateTypes(schemas: Record<string, AnyObject>): string {
+export function generateTypes(
+  schemas: Record<string, OpenAPIV3_1.SchemaObject>
+): string {
   return Object.entries(schemas)
     .map(([name, schema]) => generateSchemaType(name, schema))
     .join('\n\n');

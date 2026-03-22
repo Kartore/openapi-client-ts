@@ -74,3 +74,57 @@ These commands map to their corresponding tools. For example, `vp dev --port 300
 - [ ] Run `vp install` after pulling remote changes and before getting started.
 - [ ] Run `vp check` and `vp test` to validate changes.
 <!--VITE PLUS END-->
+
+# Project: openapi-client-ts
+
+OpenAPI 仕様から TypeScript の型定義と API クライアントを生成するモノレポ。
+
+## Repository Structure
+
+```
+tools/generator/   - OpenAPI → TypeScript コードジェネレーター（本体）
+apps/hono/         - 使用例（Hono アプリ）
+```
+
+## Generator (`tools/generator`)
+
+### 概要
+
+OpenAPI 3.0.x / 3.1.x の仕様を受け取り、以下を生成する：
+
+- `types`: `components.schemas` から TypeScript 型定義
+- `client`: `paths` から型付き `apiClient` ファクトリ関数
+
+### ソースファイル構成
+
+| ファイル            | 役割                                                                                       |
+| ------------------- | ------------------------------------------------------------------------------------------ |
+| `src/index.ts`      | エントリーポイント。`validate()` → `upgrade()` で 3.1 に正規化してから生成                 |
+| `src/schema.ts`     | `SchemaLike` 型と `schemaToTypeString()` / `generateTypes()`                               |
+| `src/operations.ts` | `OperationLike` 型と `getResponseType()` / `getQueryParameters()` / `getRequestBodyType()` |
+| `src/path-tree.ts`  | `PathTreeNode` 構造と `buildPathTree()`                                                    |
+| `src/client.ts`     | `generateClient()` でパスツリーから `apiClient` 関数を文字列生成                           |
+| `src/cli.ts`        | CLI エントリーポイント                                                                     |
+
+### 重要な設計上の制約
+
+- **バージョンチェックは `valid` チェックより先に行う**: `@scalar/openapi-parser` は未対応バージョンを `valid: false` と判定するため、順序が逆だと誤ってエラーになる
+- **`src/index.ts` の `if (!specification)` を消さない**: `specification` は `valid` チェック後も TypeScript 上 `undefined` の可能性が残るため必須
+- **サポートバージョン**: OpenAPI 3.0.x / 3.1.x のみ（3.2 は非対応）。内部では `upgrade()` で 3.1 に正規化して処理する
+- **`OperationLike` / `ParameterLike`**: テストで plain object を渡せるよう、`@scalar/openapi-types` の厳密な型ではなく互換性のあるゆるい型を `operations.ts` にローカル定義している
+- **`SchemaLike`**: `schema.ts` でローカル定義・エクスポートする再帰型。`OpenAPIV3_1.SchemaObject` との直接の型互換がないため、境界でキャストして使う
+
+### 型の方針
+
+- 公開 API (`generateClient`, `generateTypes`, `buildPathTree`) の引数は `@scalar/openapi-types` の型を使用
+- 内部処理 (`schemaToTypeString`, `getResponseType` 等) は `SchemaLike` / `OperationLike` 等のローカル型を使用
+- `@scalar/openapi-types` は `devDependencies` のみ（型定義は `import type` で使用）
+
+### Working in `tools/generator`
+
+```bash
+cd tools/generator
+vp check          # フォーマット・lint・型チェック
+vp test           # テスト実行（93 件）
+vp check --fix    # フォーマット自動修正
+```

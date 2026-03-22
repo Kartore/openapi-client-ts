@@ -1,4 +1,4 @@
-import type { AnyObject } from '@scalar/openapi-parser';
+import type { OpenAPIV3_1 } from '@scalar/openapi-types';
 
 import {
   getResponseType,
@@ -92,9 +92,7 @@ function generateNodeLines(
 
     const paramFields: string[] = [];
     for (const qp of queryParams) {
-      const qpType = qp.schema
-        ? schemaToTypeString(qp.schema as AnyObject, true)
-        : 'string';
+      const qpType = qp.schema ? schemaToTypeString(qp.schema, true) : 'string';
       const optional = qp.required ? '' : '?';
       paramFields.push(`${bodyIndent}  ${qp.name}${optional}: ${qpType};`);
     }
@@ -157,7 +155,7 @@ function generateNodeLines(
   return lines;
 }
 
-export function generateClient(paths: Record<string, AnyObject>): string {
+export function generateClient(paths: OpenAPIV3_1.PathsObject): string {
   const tree = buildPathTree(paths);
 
   if (tree.size === 0) {
