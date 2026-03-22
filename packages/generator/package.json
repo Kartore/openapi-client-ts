@@ -10,7 +10,7 @@
   "author": "Akane Kamiseto <akane@nekoyasan.me>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kartore/openapi-client-ts.git"
+    "url": "https://github.com/Kartore/openapi-client-ts"
   },
   "bin": {
     "openapi-gen": "./dist/cli.mjs"
