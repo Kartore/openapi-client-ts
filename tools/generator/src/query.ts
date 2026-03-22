@@ -8,6 +8,24 @@ import {
 import { type PathTreeNode, buildPathTree } from './path-tree';
 import { schemaToTypeString } from './schema';
 
+export type QueryFramework = 'react' | 'svelte';
+
+const FRAMEWORK_CONFIG: Record<
+  QueryFramework,
+  { pkg: string; queryOptionsType: string; mutationOptionsType: string }
+> = {
+  react: {
+    pkg: '@tanstack/react-query',
+    queryOptionsType: 'UseQueryOptions',
+    mutationOptionsType: 'UseMutationOptions',
+  },
+  svelte: {
+    pkg: '@tanstack/svelte-query',
+    queryOptionsType: 'CreateQueryOptions',
+    mutationOptionsType: 'CreateMutationOptions',
+  },
+};
+
 const CLIENT_INIT_TYPE =
   "Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }";
 
@@ -76,11 +94,12 @@ function generateQueryNodeLines(
         queryKey = `${clientChain}.key`;
       }
 
-      lines.push(`${indent}${method}: (${paramArg}) => ({`);
+      lines.push(`${indent}${method}: (${paramArg}, options?: Options) => ({`);
       lines.push(`${bodyIndent}queryKey: ${queryKey},`);
       lines.push(
         `${bodyIndent}queryFn: () => ${clientChain}.${method}(params),`
       );
+      lines.push(`${bodyIndent}...options,`);
       lines.push(`${indent}}),`);
     } else {
       // Mutation: path params are already in the closure via the chain,
@@ -95,10 +114,14 @@ function generateQueryNodeLines(
       const paramsOptional = hasRequired ? '' : '?';
       const mutationParamArg = `params${paramsOptional}: {\n${paramFields.join('\n')}\n${bodyIndent}}`;
 
-      lines.push(`${indent}${method}: () => ({`);
+      lines.push(`${indent}${method}: (options?: MutateOptions) => ({`);
+      lines.push(
+        `${bodyIndent}mutationKey: [...${clientChain}.key, '${method}'],`
+      );
       lines.push(
         `${bodyIndent}mutationFn: (${mutationParamArg}) => ${clientChain}.${method}(params),`
       );
+      lines.push(`${bodyIndent}...options,`);
       lines.push(`${indent}}),`);
     }
   }
@@ -142,14 +165,26 @@ function renderQueryNodeEntry(
   }
 }
 
-export function generateQuery(paths: OpenAPIV3_1.PathsObject): string {
+export function generateQuery(
+  paths: OpenAPIV3_1.PathsObject,
+  framework: QueryFramework
+): string {
+  const { pkg, queryOptionsType, mutationOptionsType } =
+    FRAMEWORK_CONFIG[framework];
   const tree = buildPathTree(paths);
+
+  const header = [
+    `import type { apiClient } from './client';`,
+    `import type { ${queryOptionsType}, ${mutationOptionsType} } from '${pkg}';`,
+    ``,
+    `type ApiClient = ReturnType<typeof apiClient>;`,
+    `type Options = Pick<${queryOptionsType}, 'retry' | 'retryDelay' | 'gcTime' | 'networkMode' | 'enabled'>;`,
+    `type MutateOptions = Pick<${mutationOptionsType}, 'gcTime' | 'networkMode' | 'retry' | 'retryDelay' | 'throwOnError' | 'scope'>;`,
+  ];
 
   if (tree.size === 0) {
     return [
-      `import type { apiClient } from './client';`,
-      ``,
-      `type ApiClient = ReturnType<typeof apiClient>;`,
+      ...header,
       ``,
       `export function queryClient(client: ApiClient) {`,
       `  return {};`,
@@ -164,9 +199,7 @@ export function generateQuery(paths: OpenAPIV3_1.PathsObject): string {
   }
 
   return [
-    `import type { apiClient } from './client';`,
-    ``,
-    `type ApiClient = ReturnType<typeof apiClient>;`,
+    ...header,
     ``,
     `export function queryClient(client: ApiClient) {`,
     `  return {`,

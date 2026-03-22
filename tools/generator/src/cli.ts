@@ -11,7 +11,7 @@ import {
 } from '@scalar/json-magic/bundle/plugins/browser';
 import { readFiles } from '@scalar/json-magic/bundle/plugins/node';
 
-import { generateFromObject } from './index.js';
+import { type QueryFramework, generateFromObject } from './index.js';
 
 const HELP = `\
 Usage: openapi-gen <input> [options]
@@ -23,6 +23,7 @@ Options:
   --types <filename>       Types output filename (default: "types.ts")
   --client <filename>      Client output filename (default: "client.ts")
   --query <filename>       TanStack Query helpers output filename (default: "query.ts")
+  --tanstack-query <name>  TanStack Query framework: react or svelte
   -h, --help               Show this help message
 `;
 
@@ -33,6 +34,7 @@ const { values, positionals } = parseArgs({
     types: { type: 'string', default: 'types.ts' },
     client: { type: 'string', default: 'client.ts' },
     query: { type: 'string', default: 'query.ts' },
+    'tanstack-query': { type: 'string' },
     help: { type: 'boolean', short: 'h', default: false },
   },
   allowPositionals: true,
@@ -56,19 +58,21 @@ try {
   });
 
   const { types, client, query } = await generateFromObject(
-    spec as Record<string, unknown>
+    spec as Record<string, unknown>,
+    { tanstackQuery: values['tanstack-query'] as QueryFramework | undefined }
   );
 
   await mkdir(outputDir, { recursive: true });
-  await Promise.all([
+  const writes: Promise<void>[] = [
     writeFile(typesFile, types, 'utf8'),
     writeFile(clientFile, client, 'utf8'),
-    writeFile(queryFile, query, 'utf8'),
-  ]);
+  ];
+  if (query !== null) writes.push(writeFile(queryFile, query, 'utf8'));
+  await Promise.all(writes);
 
   console.info(`types  → ${typesFile}`);
   console.info(`client → ${clientFile}`);
-  console.info(`query  → ${queryFile}`);
+  if (query !== null) console.info(`query  → ${queryFile}`);
 } catch (err) {
   console.error(`error: ${err instanceof Error ? err.message : String(err)}`);
   process.exit(1);

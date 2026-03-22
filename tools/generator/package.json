@@ -41,6 +41,8 @@
   "devDependencies": {
     "@openapi-client-ts/example-hono": "workspace:*",
     "@scalar/openapi-types": "^0.6.1",
+    "@tanstack/react-query": "catalog:",
+    "@tanstack/svelte-query": "catalog:",
     "@types/node": "catalog:",
     "@typescript/native-preview": "catalog:",
     "bumpp": "^11.0.1",

@@ -2,20 +2,25 @@ import { upgrade, validate } from '@scalar/openapi-parser';
 import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types';
 
 import { generateClient } from './client';
-import { generateQuery } from './query';
+import { type QueryFramework, generateQuery } from './query';
 import { generateTypes } from './schema';
 
 export { generateTypes } from './schema';
 export { generateClient } from './client';
-export { generateQuery } from './query';
+export { generateQuery, type QueryFramework } from './query';
 
 export interface GenerateResult {
   /** TypeScript type definitions generated from components.schemas */
   types: string;
   /** TypeScript apiClient factory function generated from paths */
   client: string;
-  /** TanStack Query helper functions generated from paths */
-  query: string;
+  /** TanStack Query helper functions generated from paths, or null if no framework was specified */
+  query: string | null;
+}
+
+export interface GenerateOptions {
+  /** Target TanStack Query framework */
+  tanstackQuery?: QueryFramework;
 }
 
 function isSupportedVersion(spec: OpenAPI.Document): boolean {
@@ -33,7 +38,8 @@ function isSupportedVersion(spec: OpenAPI.Document): boolean {
 }
 
 export async function generateFromObject(
-  spec: Record<string, unknown> | string
+  spec: Record<string, unknown> | string,
+  options?: GenerateOptions
 ): Promise<GenerateResult> {
   const { valid, specification } = await validate(spec, {});
   if (!specification || !isSupportedVersion(specification)) {
@@ -51,6 +57,8 @@ export async function generateFromObject(
   return {
     types: generateTypes(schemas),
     client: generateClient(paths),
-    query: generateQuery(paths),
+    query: options?.tanstackQuery
+      ? generateQuery(paths, options.tanstackQuery)
+      : null,
   };
 }
