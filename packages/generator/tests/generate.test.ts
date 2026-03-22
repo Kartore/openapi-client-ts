@@ -1,4 +1,4 @@
-import app from '@openapi-client-ts/example-hono';
+import app from '@kartore/openapi-client-ts-example-hono';
 import { describe, expect, test } from 'vitest';
 
 import { generateFromObject } from '../src';

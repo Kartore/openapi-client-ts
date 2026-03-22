@@ -1,6 +1,6 @@
 {
   "name": "@kartore/openapi-client-ts-generator",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A starter for creating a TypeScript package.",
   "homepage": "https://github.com/kartore/openapi-client-ts/packages/generator#readme",
   "bugs": {
@@ -39,7 +39,7 @@
     "@scalar/openapi-parser": "^0.25.6"
   },
   "devDependencies": {
-    "@openapi-client-ts/example-hono": "workspace:*",
+    "@kartore/openapi-client-ts-example-hono": "workspace:*",
     "@scalar/openapi-types": "^0.6.1",
     "@tanstack/react-query": "catalog:",
     "@tanstack/svelte-query": "catalog:",

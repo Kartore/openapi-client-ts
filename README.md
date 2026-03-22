@@ -27,3 +27,9 @@ vp run build -r
 ```bash
 vp run dev
 ```
+
+- Release a new version:
+
+```bash
+vpx bumpp
+```

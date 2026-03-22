@@ -62,7 +62,7 @@ importers:
         specifier: npm:@voidzero-dev/vite-plus-core@^0.1.13
         version: '@voidzero-dev/vite-plus-core@0.1.13(@types/node@25.5.0)(jiti@2.6.1)(typescript@5.9.3)(yaml@2.8.3)'
 
-  tools/generator:
+  packages/generator:
     dependencies:
       '@scalar/json-magic':
         specifier: ^0.12.4
@@ -71,7 +71,7 @@ importers:
         specifier: ^0.25.6
         version: 0.25.6
     devDependencies:
-      '@openapi-client-ts/example-hono':
+      '@kartore/openapi-client-ts-example-hono':
         specifier: workspace:*
         version: link:../../apps/hono
       '@scalar/openapi-types':
