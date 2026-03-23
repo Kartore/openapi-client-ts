@@ -23,6 +23,8 @@ export interface GenerateOptions {
   tanstackQuery?: QueryFramework;
   /** Import path used in client.ts to reference types.ts (default: './types') */
   typesImportPath?: string;
+  /** Throw HTTPError when response.ok is false (default: true) */
+  throwOnHttpError?: boolean;
 }
 
 function isSupportedVersion(spec: OpenAPI.Document): boolean {
@@ -60,6 +62,7 @@ export async function generateFromObject(
     types: generateTypes(schemas),
     client: generateClient(paths, {
       typesImportPath: options?.typesImportPath,
+      throwOnHttpError: options?.throwOnHttpError,
     }),
     query: options?.tanstackQuery
       ? generateQuery(paths, options.tanstackQuery)

@@ -95,6 +95,24 @@ describe('generateClient', () => {
   test('empty paths produces minimal apiClient', () => {
     expect(generateClient({})).toMatchInlineSnapshot(`
     	"/* eslint-disable */
+    	export class HTTPError extends Error {
+    	  readonly status: number;
+    	  readonly statusText: string;
+    	  readonly response: Response;
+    	  constructor(response: Response) {
+    	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
+    	    this.name = 'HTTPError';
+    	    this.status = response.status;
+    	    this.statusText = response.statusText;
+    	    this.response = response;
+    	  }
+    	}
+
+    	function _checkOk(response: Response): Response {
+    	  if (!response.ok) throw new HTTPError(response);
+    	  return response;
+    	}
+
     	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
     	  return {};
     	}"
@@ -106,6 +124,24 @@ describe('generateClient', () => {
       expect(generateClient({ '/users': { get: { responses: {} } } }))
         .toMatchInlineSnapshot(`
         	"/* eslint-disable */
+        	export class HTTPError extends Error {
+        	  readonly status: number;
+        	  readonly statusText: string;
+        	  readonly response: Response;
+        	  constructor(response: Response) {
+        	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
+        	    this.name = 'HTTPError';
+        	    this.status = response.status;
+        	    this.statusText = response.statusText;
+        	    this.response = response;
+        	  }
+        	}
+
+        	function _checkOk(response: Response): Response {
+        	  if (!response.ok) throw new HTTPError(response);
+        	  return response;
+        	}
+
         	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
         	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
         	  const _baseInit = clientOptions?.init;
@@ -121,7 +157,7 @@ describe('generateClient', () => {
         	          init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
         	        }): Promise<void> => {
         	        const url = \`\${baseUrl}/users\`;
-        	        return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
+        	        return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(_checkOk).then(() => undefined);
         	      },
         	    },
         	  };
@@ -134,6 +170,24 @@ describe('generateClient', () => {
         generateClient({ '/auth/verify-email': { post: { responses: {} } } })
       ).toMatchInlineSnapshot(`
       	"/* eslint-disable */
+      	export class HTTPError extends Error {
+      	  readonly status: number;
+      	  readonly statusText: string;
+      	  readonly response: Response;
+      	  constructor(response: Response) {
+      	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
+      	    this.name = 'HTTPError';
+      	    this.status = response.status;
+      	    this.statusText = response.statusText;
+      	    this.response = response;
+      	  }
+      	}
+
+      	function _checkOk(response: Response): Response {
+      	  if (!response.ok) throw new HTTPError(response);
+      	  return response;
+      	}
+
       	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
       	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
       	  const _baseInit = clientOptions?.init;
@@ -150,7 +204,7 @@ describe('generateClient', () => {
       	            init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
       	          }): Promise<void> => {
       	          const url = \`\${baseUrl}/auth/verify-email\`;
-      	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'POST' }).then(() => undefined);
+      	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'POST' }).then(_checkOk).then(() => undefined);
       	        },
       	      },
       	    },
@@ -163,6 +217,24 @@ describe('generateClient', () => {
       expect(generateClient({ '/api/_public': { get: { responses: {} } } }))
         .toMatchInlineSnapshot(`
         	"/* eslint-disable */
+        	export class HTTPError extends Error {
+        	  readonly status: number;
+        	  readonly statusText: string;
+        	  readonly response: Response;
+        	  constructor(response: Response) {
+        	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
+        	    this.name = 'HTTPError';
+        	    this.status = response.status;
+        	    this.statusText = response.statusText;
+        	    this.response = response;
+        	  }
+        	}
+
+        	function _checkOk(response: Response): Response {
+        	  if (!response.ok) throw new HTTPError(response);
+        	  return response;
+        	}
+
         	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
         	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
         	  const _baseInit = clientOptions?.init;
@@ -179,7 +251,7 @@ describe('generateClient', () => {
         	            init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
         	          }): Promise<void> => {
         	          const url = \`\${baseUrl}/api/_public\`;
-        	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
+        	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(_checkOk).then(() => undefined);
         	        },
         	      },
         	    },
@@ -204,6 +276,24 @@ describe('generateClient', () => {
         })
       ).toMatchInlineSnapshot(`
       	"/* eslint-disable */
+      	export class HTTPError extends Error {
+      	  readonly status: number;
+      	  readonly statusText: string;
+      	  readonly response: Response;
+      	  constructor(response: Response) {
+      	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
+      	    this.name = 'HTTPError';
+      	    this.status = response.status;
+      	    this.statusText = response.statusText;
+      	    this.response = response;
+      	  }
+      	}
+
+      	function _checkOk(response: Response): Response {
+      	  if (!response.ok) throw new HTTPError(response);
+      	  return response;
+      	}
+
       	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
       	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
       	  const _baseInit = clientOptions?.init;
@@ -220,7 +310,7 @@ describe('generateClient', () => {
       	            init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
       	          }): Promise<void> => {
       	          const url = \`\${baseUrl}/users/\${id}\`;
-      	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
+      	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(_checkOk).then(() => undefined);
       	        },
       	      }),
       	    },
@@ -243,6 +333,24 @@ describe('generateClient', () => {
         })
       ).toMatchInlineSnapshot(`
       	"/* eslint-disable */
+      	export class HTTPError extends Error {
+      	  readonly status: number;
+      	  readonly statusText: string;
+      	  readonly response: Response;
+      	  constructor(response: Response) {
+      	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
+      	    this.name = 'HTTPError';
+      	    this.status = response.status;
+      	    this.statusText = response.statusText;
+      	    this.response = response;
+      	  }
+      	}
+
+      	function _checkOk(response: Response): Response {
+      	  if (!response.ok) throw new HTTPError(response);
+      	  return response;
+      	}
+
       	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
       	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
       	  const _baseInit = clientOptions?.init;
@@ -259,7 +367,7 @@ describe('generateClient', () => {
       	            init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
       	          }): Promise<void> => {
       	          const url = \`\${baseUrl}/items/\${code}\`;
-      	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
+      	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(_checkOk).then(() => undefined);
       	        },
       	      }),
       	    },
@@ -272,6 +380,24 @@ describe('generateClient', () => {
       expect(generateClient({ '/users/{id}': { get: { responses: {} } } }))
         .toMatchInlineSnapshot(`
         	"/* eslint-disable */
+        	export class HTTPError extends Error {
+        	  readonly status: number;
+        	  readonly statusText: string;
+        	  readonly response: Response;
+        	  constructor(response: Response) {
+        	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
+        	    this.name = 'HTTPError';
+        	    this.status = response.status;
+        	    this.statusText = response.statusText;
+        	    this.response = response;
+        	  }
+        	}
+
+        	function _checkOk(response: Response): Response {
+        	  if (!response.ok) throw new HTTPError(response);
+        	  return response;
+        	}
+
         	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
         	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
         	  const _baseInit = clientOptions?.init;
@@ -288,7 +414,7 @@ describe('generateClient', () => {
         	            init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
         	          }): Promise<void> => {
         	          const url = \`\${baseUrl}/users/\${id}\`;
-        	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
+        	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(_checkOk).then(() => undefined);
         	        },
         	      }),
         	    },
@@ -323,6 +449,24 @@ describe('generateClient', () => {
       	"/* eslint-disable */
       	import type { User } from './types';
 
+      	export class HTTPError extends Error {
+      	  readonly status: number;
+      	  readonly statusText: string;
+      	  readonly response: Response;
+      	  constructor(response: Response) {
+      	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
+      	    this.name = 'HTTPError';
+      	    this.status = response.status;
+      	    this.statusText = response.statusText;
+      	    this.response = response;
+      	  }
+      	}
+
+      	function _checkOk(response: Response): Response {
+      	  if (!response.ok) throw new HTTPError(response);
+      	  return response;
+      	}
+
       	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
       	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
       	  const _baseInit = clientOptions?.init;
@@ -339,7 +483,7 @@ describe('generateClient', () => {
       	            init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
       	          }): Promise<User> => {
       	          const url = \`\${baseUrl}/users/\${id}\`;
-      	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then((r) => r.json()) as Promise<User>;
+      	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(_checkOk).then((r) => r.json()) as Promise<User>;
       	        },
       	      }),
       	    },
@@ -352,6 +496,24 @@ describe('generateClient', () => {
       expect(generateClient({ '/ping': { get: { responses: {} } } }))
         .toMatchInlineSnapshot(`
         	"/* eslint-disable */
+        	export class HTTPError extends Error {
+        	  readonly status: number;
+        	  readonly statusText: string;
+        	  readonly response: Response;
+        	  constructor(response: Response) {
+        	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
+        	    this.name = 'HTTPError';
+        	    this.status = response.status;
+        	    this.statusText = response.statusText;
+        	    this.response = response;
+        	  }
+        	}
+
+        	function _checkOk(response: Response): Response {
+        	  if (!response.ok) throw new HTTPError(response);
+        	  return response;
+        	}
+
         	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
         	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
         	  const _baseInit = clientOptions?.init;
@@ -367,7 +529,7 @@ describe('generateClient', () => {
         	          init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
         	        }): Promise<void> => {
         	        const url = \`\${baseUrl}/ping\`;
-        	        return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
+        	        return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(_checkOk).then(() => undefined);
         	      },
         	    },
         	  };
@@ -397,6 +559,24 @@ describe('generateClient', () => {
         })
       ).toMatchInlineSnapshot(`
       	"/* eslint-disable */
+      	export class HTTPError extends Error {
+      	  readonly status: number;
+      	  readonly statusText: string;
+      	  readonly response: Response;
+      	  constructor(response: Response) {
+      	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
+      	    this.name = 'HTTPError';
+      	    this.status = response.status;
+      	    this.statusText = response.statusText;
+      	    this.response = response;
+      	  }
+      	}
+
+      	function _checkOk(response: Response): Response {
+      	  if (!response.ok) throw new HTTPError(response);
+      	  return response;
+      	}
+
       	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
       	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
       	  const _baseInit = clientOptions?.init;
@@ -413,7 +593,7 @@ describe('generateClient', () => {
       	          init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
       	        }): Promise<void> => {
       	        const url = \`\${baseUrl}/users\`;
-      	        return _fetch(url, { ..._baseInit, ...params?.init, headers: { 'Content-Type': 'application/json', ..._baseInit?.headers, ...params?.init?.headers }, method: 'POST', body: JSON.stringify(params.body) }).then(() => undefined);
+      	        return _fetch(url, { ..._baseInit, ...params?.init, headers: { 'Content-Type': 'application/json', ..._baseInit?.headers, ...params?.init?.headers }, method: 'POST', body: JSON.stringify(params.body) }).then(_checkOk).then(() => undefined);
       	      },
       	    },
       	  };
@@ -442,6 +622,24 @@ describe('generateClient', () => {
         })
       ).toMatchInlineSnapshot(`
       	"/* eslint-disable */
+      	export class HTTPError extends Error {
+      	  readonly status: number;
+      	  readonly statusText: string;
+      	  readonly response: Response;
+      	  constructor(response: Response) {
+      	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
+      	    this.name = 'HTTPError';
+      	    this.status = response.status;
+      	    this.statusText = response.statusText;
+      	    this.response = response;
+      	  }
+      	}
+
+      	function _checkOk(response: Response): Response {
+      	  if (!response.ok) throw new HTTPError(response);
+      	  return response;
+      	}
+
       	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
       	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
       	  const _baseInit = clientOptions?.init;
@@ -461,7 +659,7 @@ describe('generateClient', () => {
       	        if (params?.page !== undefined) searchParams.set('page', String(params.page));
       	        const qs = searchParams.toString();
       	        const url = \`\${baseUrl}/users\` + (qs ? \`?\${qs}\` : '');
-      	        return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
+      	        return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(_checkOk).then(() => undefined);
       	      },
       	    },
       	  };
@@ -488,6 +686,24 @@ describe('generateClient', () => {
         })
       ).toMatchInlineSnapshot(`
       	"/* eslint-disable */
+      	export class HTTPError extends Error {
+      	  readonly status: number;
+      	  readonly statusText: string;
+      	  readonly response: Response;
+      	  constructor(response: Response) {
+      	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
+      	    this.name = 'HTTPError';
+      	    this.status = response.status;
+      	    this.statusText = response.statusText;
+      	    this.response = response;
+      	  }
+      	}
+
+      	function _checkOk(response: Response): Response {
+      	  if (!response.ok) throw new HTTPError(response);
+      	  return response;
+      	}
+
       	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
       	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
       	  const _baseInit = clientOptions?.init;
@@ -507,7 +723,7 @@ describe('generateClient', () => {
       	        if (params?.q !== undefined) searchParams.set('q', String(params.q));
       	        const qs = searchParams.toString();
       	        const url = \`\${baseUrl}/users\` + (qs ? \`?\${qs}\` : '');
-      	        return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
+      	        return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(_checkOk).then(() => undefined);
       	      },
       	    },
       	  };
@@ -532,6 +748,24 @@ describe('generateClient', () => {
         })
       ).toMatchInlineSnapshot(`
       	"/* eslint-disable */
+      	export class HTTPError extends Error {
+      	  readonly status: number;
+      	  readonly statusText: string;
+      	  readonly response: Response;
+      	  constructor(response: Response) {
+      	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
+      	    this.name = 'HTTPError';
+      	    this.status = response.status;
+      	    this.statusText = response.statusText;
+      	    this.response = response;
+      	  }
+      	}
+
+      	function _checkOk(response: Response): Response {
+      	  if (!response.ok) throw new HTTPError(response);
+      	  return response;
+      	}
+
       	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
       	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
       	  const _baseInit = clientOptions?.init;
@@ -547,7 +781,7 @@ describe('generateClient', () => {
       	          init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
       	        }): Promise<void> => {
       	        const url = \`\${baseUrl}/users\`;
-      	        return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
+      	        return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(_checkOk).then(() => undefined);
       	      },
       	      id: (id: string) => ({
       	        key: ['users', id] as const,
@@ -560,7 +794,7 @@ describe('generateClient', () => {
       	            init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
       	          }): Promise<void> => {
       	          const url = \`\${baseUrl}/users/\${id}\`;
-      	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
+      	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(_checkOk).then(() => undefined);
       	        },
       	      }),
       	    },
@@ -586,6 +820,24 @@ describe('generateClient', () => {
         })
       ).toMatchInlineSnapshot(`
       	"/* eslint-disable */
+      	export class HTTPError extends Error {
+      	  readonly status: number;
+      	  readonly statusText: string;
+      	  readonly response: Response;
+      	  constructor(response: Response) {
+      	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
+      	    this.name = 'HTTPError';
+      	    this.status = response.status;
+      	    this.statusText = response.statusText;
+      	    this.response = response;
+      	  }
+      	}
+
+      	function _checkOk(response: Response): Response {
+      	  if (!response.ok) throw new HTTPError(response);
+      	  return response;
+      	}
+
       	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
       	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
       	  const _baseInit = clientOptions?.init;
@@ -604,7 +856,7 @@ describe('generateClient', () => {
       	                init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
       	              }): Promise<void> => {
       	              const url = \`\${baseUrl}/orgs/\${orgId}/members/\${memberId}\`;
-      	              return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
+      	              return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(_checkOk).then(() => undefined);
       	            },
       	          }),
       	        },
@@ -613,6 +865,55 @@ describe('generateClient', () => {
       	  };
       	}"
       `);
+    });
+  });
+
+  describe('throwOnHttpError: false', () => {
+    test('empty paths omits HTTPError and _checkOk', () => {
+      const result = generateClient({}, { throwOnHttpError: false });
+      expect(result).not.toContain('HTTPError');
+      expect(result).not.toContain('_checkOk');
+      expect(result).toContain('export function apiClient');
+    });
+
+    test('fetch chain has no _checkOk', () => {
+      const result = generateClient(
+        { '/ping': { get: { responses: {} } } },
+        { throwOnHttpError: false }
+      );
+      expect(result).not.toContain('_checkOk');
+      expect(result).not.toContain('HTTPError');
+      expect(result).toContain('.then(() => undefined)');
+    });
+
+    test('non-void return type has no _checkOk', () => {
+      const result = generateClient(
+        {
+          '/users': {
+            get: {
+              responses: {
+                '200': {
+                  content: {
+                    'application/json': {
+                      schema: { $ref: '#/components/schemas/User' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        { throwOnHttpError: false }
+      );
+      expect(result).not.toContain('_checkOk');
+      expect(result).not.toContain('HTTPError');
+      expect(result).toContain('.then((r) => r.json())');
+    });
+
+    test('throwOnHttpError: true (default) includes HTTPError and _checkOk', () => {
+      const result = generateClient({ '/ping': { get: { responses: {} } } });
+      expect(result).toContain('HTTPError');
+      expect(result).toContain('_checkOk');
     });
   });
 });

@@ -44,13 +44,34 @@ const CLIENT_INIT_TYPE =
 
 const CLIENT_OPTIONS_TYPE = `clientOptions?: { init?: ${CLIENT_INIT_TYPE}; fetch?: typeof globalThis.fetch }`;
 
+const API_ERROR_PREAMBLE = `\
+export class HTTPError extends Error {
+  readonly status: number;
+  readonly statusText: string;
+  readonly response: Response;
+  constructor(response: Response) {
+    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
+    this.name = 'HTTPError';
+    this.status = response.status;
+    this.statusText = response.statusText;
+    this.response = response;
+  }
+}
+
+function _checkOk(response: Response): Response {
+  if (!response.ok) throw new HTTPError(response);
+  return response;
+}
+`;
+
 function renderNodeEntry(
   node: PathTreeNode,
   keyItems: string[],
   pathParts: string[],
   indent: string,
   lines: string[],
-  collector: Set<string>
+  collector: Set<string>,
+  throwOnHttpError: boolean
 ): void {
   const contentIndent = indent + '  ';
   if (node.isDynamic) {
@@ -61,14 +82,28 @@ function renderNodeEntry(
       : 'string';
     lines.push(`${indent}${paramName}: (${paramName}: ${paramType}) => ({`);
     lines.push(
-      ...generateNodeLines(node, keyItems, pathParts, contentIndent, collector)
+      ...generateNodeLines(
+        node,
+        keyItems,
+        pathParts,
+        contentIndent,
+        collector,
+        throwOnHttpError
+      )
     );
     lines.push(`${indent}}),`);
   } else {
     const segment = node.segment;
     lines.push(`${indent}${segmentToPropKey(segment)}: {`);
     lines.push(
-      ...generateNodeLines(node, keyItems, pathParts, contentIndent, collector)
+      ...generateNodeLines(
+        node,
+        keyItems,
+        pathParts,
+        contentIndent,
+        collector,
+        throwOnHttpError
+      )
     );
     lines.push(`${indent}},`);
   }
@@ -79,7 +114,8 @@ function generateNodeLines(
   keyItems: string[],
   pathParts: string[],
   indent: string,
-  collector: Set<string>
+  collector: Set<string>,
+  throwOnHttpError: boolean
 ): string[] {
   const lines: string[] = [];
   const bodyIndent = indent + '  ';
@@ -143,13 +179,14 @@ function generateNodeLines(
     const bodyPart = bodyType ? `, body: JSON.stringify(params.body)` : '';
     const fetchInit = `{ ..._baseInit, ...params?.init, headers: ${mergedHeaders}, method: '${method.toUpperCase()}'${bodyPart} }`;
 
+    const checkOkChain = throwOnHttpError ? `.then(_checkOk)` : '';
     if (returnType === 'void') {
       lines.push(
-        `${bodyIndent}return _fetch(url, ${fetchInit}).then(() => undefined);`
+        `${bodyIndent}return _fetch(url, ${fetchInit})${checkOkChain}.then(() => undefined);`
       );
     } else {
       lines.push(
-        `${bodyIndent}return _fetch(url, ${fetchInit}).then((r) => r.json()) as Promise<${returnType}>;`
+        `${bodyIndent}return _fetch(url, ${fetchInit})${checkOkChain}.then((r) => r.json()) as Promise<${returnType}>;`
       );
     }
 
@@ -167,7 +204,8 @@ function generateNodeLines(
       childPathParts,
       indent,
       lines,
-      collector
+      collector,
+      throwOnHttpError
     );
   }
 
@@ -176,12 +214,15 @@ function generateNodeLines(
 
 export function generateClient(
   paths: OpenAPIV3_1.PathsObject,
-  options?: { typesImportPath?: string }
+  options?: { typesImportPath?: string; throwOnHttpError?: boolean }
 ): string {
   const tree = buildPathTree(paths);
+  const throwOnHttpError = options?.throwOnHttpError ?? true;
+
+  const preamble = throwOnHttpError ? `${API_ERROR_PREAMBLE}\n` : '';
 
   if (tree.size === 0) {
-    return `/* eslint-disable */\nexport function apiClient(baseUrl: string, ${CLIENT_OPTIONS_TYPE}) {\n  return {};\n}`;
+    return `/* eslint-disable */\n${preamble}export function apiClient(baseUrl: string, ${CLIENT_OPTIONS_TYPE}) {\n  return {};\n}`;
   }
 
   const referencedTypes = new Set<string>();
@@ -197,7 +238,8 @@ export function generateClient(
       [node.segment],
       '    ',
       bodyLines,
-      referencedTypes
+      referencedTypes,
+      throwOnHttpError
     );
   }
 
@@ -210,6 +252,7 @@ export function generateClient(
   return (
     `/* eslint-disable */\n` +
     importLine +
+    preamble +
     [
       `export function apiClient(baseUrl: string, ${CLIENT_OPTIONS_TYPE}) {`,
       `  const _fetch = clientOptions?.fetch ?? globalThis.fetch;`,

@@ -24,6 +24,7 @@ Options:
   --client <filename>      Client output filename (default: "client.ts")
   --query <filename>       TanStack Query helpers output filename (default: "query.ts")
   --tanstack-query <name>  TanStack Query framework: react or svelte
+  --no-throw-on-http-error  Do not throw HTTPError on non-ok responses
   -h, --help               Show this help message
 `;
 
@@ -35,6 +36,7 @@ const { values, positionals } = parseArgs({
     client: { type: 'string', default: 'client.ts' },
     query: { type: 'string', default: 'query.ts' },
     'tanstack-query': { type: 'string' },
+    'no-throw-on-http-error': { type: 'boolean', default: false },
     help: { type: 'boolean', short: 'h', default: false },
   },
   allowPositionals: true,
@@ -64,6 +66,7 @@ try {
     {
       tanstackQuery: values['tanstack-query'] as QueryFramework | undefined,
       typesImportPath,
+      throwOnHttpError: !values['no-throw-on-http-error'],
     }
   );
 
