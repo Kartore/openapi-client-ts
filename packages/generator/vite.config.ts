@@ -1,6 +1,14 @@
 import { defineConfig } from 'vite-plus';
 
 export default defineConfig({
+  test: {
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.ts'],
+      exclude: ['src/cli.ts', 'src/node.ts'],
+      reporter: ['text', 'lcov'],
+    },
+  },
   pack: {
     dts: {
       tsgo: true,

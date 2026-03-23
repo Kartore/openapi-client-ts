@@ -9,6 +9,7 @@ catalog:
   '@tanstack/svelte-query': ^6.1.8
   '@types/node': ^25.5.0
   '@typescript/native-preview': 7.0.0-dev.20260321.1
+  '@vitest/coverage-v8': ^4.1.0
   vite: npm:@voidzero-dev/vite-plus-core@^0.1.13
   vite-plus: latest
   vitest: npm:@voidzero-dev/vite-plus-test@^0.1.13
@@ -23,6 +24,8 @@ peerDependencyRules:
   allowAny:
     - vite
     - vitest
+    - '@vitest/coverage-v8'
   allowedVersions:
     vite: '*'
     vitest: '*'
+    '@vitest/coverage-v8': '*'
