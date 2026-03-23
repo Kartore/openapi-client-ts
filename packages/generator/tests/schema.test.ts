@@ -172,6 +172,110 @@ describe('schemaToTypeString', () => {
     });
   });
 
+  describe('enum types', () => {
+    test('string enum with multiple values becomes union literal', () => {
+      expect(
+        schemaToTypeString({ type: 'string', enum: ['FREE', 'TEAM', 'CUSTOM'] })
+      ).toBe("'FREE' | 'TEAM' | 'CUSTOM'");
+    });
+    test('string enum with single value (z.literal) becomes literal type', () => {
+      expect(schemaToTypeString({ type: 'string', enum: ['layer'] })).toBe(
+        "'layer'"
+      );
+    });
+    test('nullable enum appends | null', () => {
+      expect(
+        schemaToTypeString({
+          type: 'string',
+          enum: ['FREE', 'TEAM'],
+          nullable: true,
+        })
+      ).toBe("'FREE' | 'TEAM' | null");
+    });
+    test('enum with number values', () => {
+      expect(schemaToTypeString({ type: 'integer', enum: [1, 2, 3] })).toBe(
+        '1 | 2 | 3'
+      );
+    });
+  });
+
+  describe('any / unconstrained schemas', () => {
+    test('empty schema {} returns any', () => {
+      expect(schemaToTypeString({})).toBe('any');
+    });
+    test('boolean true returns any', () => {
+      expect(schemaToTypeString(true)).toBe('any');
+    });
+    test('boolean false returns unknown', () => {
+      expect(schemaToTypeString(false)).toBe('unknown');
+    });
+    test('nullable empty schema returns any | null', () => {
+      expect(
+        schemaToTypeString({ nullable: true, type: 'string', enum: undefined })
+      ).toBe('string | null');
+    });
+  });
+
+  describe('additionalProperties', () => {
+    test('additionalProperties: true with no properties returns any', () => {
+      expect(
+        schemaToTypeString({ type: 'object', additionalProperties: true })
+      ).toBe('any');
+    });
+    test('additionalProperties schema returns Record<string, valueType>', () => {
+      expect(
+        schemaToTypeString({
+          type: 'object',
+          additionalProperties: { type: 'string' },
+        })
+      ).toBe('Record<string, string>');
+    });
+    test('additionalProperties: false falls back to Record<string, unknown>', () => {
+      expect(
+        schemaToTypeString({ type: 'object', additionalProperties: false })
+      ).toBe('Record<string, unknown>');
+    });
+    test('additionalProperties with $ref value', () => {
+      expect(
+        schemaToTypeString({
+          type: 'object',
+          additionalProperties: { $ref: '#/components/schemas/User' },
+        })
+      ).toBe('Record<string, User>');
+    });
+  });
+
+  describe('nullable $ref (problem 5)', () => {
+    test('nullable: true with allOf $ref produces RefType | null', () => {
+      expect(
+        schemaToTypeString({
+          nullable: true,
+          allOf: [{ $ref: '#/components/schemas/PlanInvoice' }],
+        })
+      ).toBe('PlanInvoice | null');
+    });
+    test('oneOf with $ref and { type: null } member produces RefType | null', () => {
+      expect(
+        schemaToTypeString({
+          oneOf: [
+            { $ref: '#/components/schemas/PlanInvoice' },
+            { type: 'null' },
+          ],
+        })
+      ).toBe('PlanInvoice | null');
+    });
+    test('allOf with { type: null } member produces union not intersection', () => {
+      expect(
+        schemaToTypeString({
+          allOf: [
+            { $ref: '#/components/schemas/PlanInvoice' },
+            { type: 'null' },
+          ],
+        })
+      ).toBe('PlanInvoice | null');
+    });
+  });
+
   describe('composite types', () => {
     test('oneOf produces union type', () => {
       expect(
@@ -209,8 +313,8 @@ describe('schemaToTypeString', () => {
         })
       ).toBe('number[] | null');
     });
-    test('anyOf where all parts are unknown stays unknown', () => {
-      expect(schemaToTypeString({ anyOf: [{}, {}] })).toBe('unknown');
+    test('anyOf where all parts are unconstrained becomes any', () => {
+      expect(schemaToTypeString({ anyOf: [{}, {}] })).toBe('any');
     });
   });
 });
