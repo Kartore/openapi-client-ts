@@ -22,6 +22,7 @@
   "exports": {
     ".": "./dist/index.mjs",
     "./cli": "./dist/cli.mjs",
+    "./node": "./dist/node.mjs",
     "./package.json": "./package.json"
   },
   "publishConfig": {
