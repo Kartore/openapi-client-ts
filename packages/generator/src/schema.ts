@@ -13,6 +13,8 @@ export type SchemaLike = {
   oneOf?: SchemaLike[];
   anyOf?: SchemaLike[];
   allOf?: SchemaLike[];
+  enum?: unknown[];
+  additionalProperties?: boolean | SchemaLike;
 };
 
 export function collectRefTypes(
@@ -34,13 +36,21 @@ export function collectRefTypes(
     );
   }
   if (schema.items) collectRefTypes(schema.items, collector);
+  if (
+    schema.additionalProperties &&
+    typeof schema.additionalProperties !== 'boolean'
+  ) {
+    collectRefTypes(schema.additionalProperties, collector);
+  }
 }
 
 export function schemaToTypeString(
   schema: SchemaLike | boolean,
   inline = false
 ): string {
-  if (!schema || typeof schema === 'boolean') return 'unknown';
+  if (!schema) return 'unknown';
+  if (schema === true) return 'any';
+  if (typeof schema === 'boolean') return 'unknown';
 
   const nullable = schema.nullable === true;
   const withNull = (t: string) => (nullable ? `${t} | null` : t);
@@ -54,7 +64,9 @@ export function schemaToTypeString(
     !schema.anyOf &&
     !schema.allOf &&
     !schema.properties &&
-    !schema.items
+    !schema.items &&
+    !schema.enum &&
+    !schema.additionalProperties
   ) {
     return 'null';
   }
@@ -63,11 +75,24 @@ export function schemaToTypeString(
     return withNull(schema.$ref.split('/').pop() ?? 'unknown');
   }
 
+  // enum arrays → union literal type (handles z.enum() and z.literal())
+  if (schema.enum && schema.enum.length > 0) {
+    const literals = schema.enum
+      .map((v) => (typeof v === 'string' ? `'${v}'` : JSON.stringify(v)))
+      .join(' | ');
+    return withNull(literals);
+  }
+
   if (schema.oneOf) {
-    const parts = schema.oneOf.map((s) => schemaToTypeString(s, inline));
+    const nonNullMembers = schema.oneOf.filter(
+      (s) => !(typeof s === 'object' && !Array.isArray(s) && s.type === 'null')
+    );
+    const hasNullMember = nonNullMembers.length < schema.oneOf.length;
+    const parts = nonNullMembers.map((s) => schemaToTypeString(s, inline));
     const known = parts.filter((p) => p !== 'unknown');
     const unique = [...new Set(known.length > 0 ? known : parts)];
-    return withNull(unique.join(' | '));
+    const result = unique.join(' | ');
+    return hasNullMember || nullable ? `${result} | null` : result;
   }
   if (schema.anyOf) {
     const parts = schema.anyOf.map((s) => schemaToTypeString(s, inline));
@@ -76,9 +101,15 @@ export function schemaToTypeString(
     return withNull(unique.join(' | '));
   }
   if (schema.allOf) {
-    return withNull(
-      schema.allOf.map((s) => schemaToTypeString(s, inline)).join(' & ')
+    // Extract { type: 'null' } members from allOf (produced by upgrade() from nullable+allOf)
+    const nonNullMembers = schema.allOf.filter(
+      (s) => !(typeof s === 'object' && !Array.isArray(s) && s.type === 'null')
     );
+    const hasNullMember = nonNullMembers.length < schema.allOf.length;
+    const allOfType = nonNullMembers
+      .map((s) => schemaToTypeString(s, inline))
+      .join(' & ');
+    return hasNullMember || nullable ? `${allOfType} | null` : allOfType;
   }
 
   const types = Array.isArray(schema.type)
@@ -87,7 +118,11 @@ export function schemaToTypeString(
       ? [schema.type]
       : [];
 
-  if (types.includes('object') || schema.properties) {
+  if (
+    types.includes('object') ||
+    schema.properties ||
+    schema.additionalProperties
+  ) {
     return withNull(objectSchemaToTypeString(schema, inline));
   }
 
@@ -96,6 +131,11 @@ export function schemaToTypeString(
       ? schemaToTypeString(schema.items, inline)
       : 'unknown';
     return withNull(`${itemType}[]`);
+  }
+
+  // Empty schema (no type constraints, no structure) → any (represents z.any())
+  if (types.length === 0) {
+    return withNull('any');
   }
 
   const tsTypes = types
@@ -124,8 +164,19 @@ export function schemaToTypeString(
 function objectSchemaToTypeString(schema: SchemaLike, inline = false): string {
   const properties = schema.properties ?? {};
   const required = new Set<string>(schema.required ?? []);
+  const hasProperties = Object.keys(properties).length > 0;
 
-  if (Object.keys(properties).length === 0) {
+  if (!hasProperties) {
+    if (schema.additionalProperties === true) {
+      return 'any';
+    }
+    if (
+      schema.additionalProperties &&
+      typeof schema.additionalProperties !== 'boolean'
+    ) {
+      const valueType = schemaToTypeString(schema.additionalProperties, inline);
+      return `Record<string, ${valueType}>`;
+    }
     return 'Record<string, unknown>';
   }
 
