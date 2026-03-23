@@ -29,3 +29,4 @@ jobs:
           files: packages/generator/coverage/lcov.info
           flags: generator
           token: ${{ secrets.CODECOV_TOKEN }}
+          slug: Kartore/openapi-client-ts
