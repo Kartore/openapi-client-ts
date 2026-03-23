@@ -15,11 +15,11 @@ npx openapi-gen <input-file> -o <output-dir>
 for svelte-query client generation:
 
 ```bash
-npx openapi-gen <input-file> -o <output-dir> --tnstack-query svelte
+npx openapi-gen <input-file> -o <output-dir> --tanstack-query svelte
 ```
 
 for react-query client generation:
 
 ```bash
-npx openapi-gen <input-file> -o <output-dir> --tnstack-query react
+npx openapi-gen <input-file> -o <output-dir> --tanstack-query react
 ```
