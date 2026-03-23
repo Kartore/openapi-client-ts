@@ -1,6 +1,7 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types';
 
 import {
+  collectOperationRefTypes,
   getResponseType,
   getQueryParameters,
   getRequestBodyType,
@@ -10,7 +11,7 @@ import {
   buildPathTree,
   isDynamicSegment,
 } from './path-tree';
-import { schemaToTypeString } from './schema';
+import { collectRefTypes, schemaToTypeString } from './schema';
 
 export function segmentsToTemplateParts(pathParts: string[]): string[] {
   return pathParts.map((p) =>
@@ -48,21 +49,27 @@ function renderNodeEntry(
   keyItems: string[],
   pathParts: string[],
   indent: string,
-  lines: string[]
+  lines: string[],
+  collector: Set<string>
 ): void {
   const contentIndent = indent + '  ';
   if (node.isDynamic) {
     const paramName = node.paramName!;
+    if (node.paramSchema) collectRefTypes(node.paramSchema, collector);
     const paramType = node.paramSchema
       ? schemaToTypeString(node.paramSchema, true)
       : 'string';
     lines.push(`${indent}${paramName}: (${paramName}: ${paramType}) => ({`);
-    lines.push(...generateNodeLines(node, keyItems, pathParts, contentIndent));
+    lines.push(
+      ...generateNodeLines(node, keyItems, pathParts, contentIndent, collector)
+    );
     lines.push(`${indent}}),`);
   } else {
     const segment = node.segment;
     lines.push(`${indent}${segmentToPropKey(segment)}: {`);
-    lines.push(...generateNodeLines(node, keyItems, pathParts, contentIndent));
+    lines.push(
+      ...generateNodeLines(node, keyItems, pathParts, contentIndent, collector)
+    );
     lines.push(`${indent}},`);
   }
 }
@@ -71,7 +78,8 @@ function generateNodeLines(
   node: PathTreeNode,
   keyItems: string[],
   pathParts: string[],
-  indent: string
+  indent: string,
+  collector: Set<string>
 ): string[] {
   const lines: string[] = [];
   const bodyIndent = indent + '  ';
@@ -83,6 +91,7 @@ function generateNodeLines(
   }
 
   for (const [method, operation] of Object.entries(node.operations)) {
+    collectOperationRefTypes(operation, collector);
     const returnType = getResponseType(operation);
     const queryParams = getQueryParameters(operation);
     const bodyType = getRequestBodyType(operation);
@@ -152,35 +161,62 @@ function generateNodeLines(
     const childKeyItems = child.isDynamic
       ? [...keyItems, child.paramName!]
       : [...keyItems, `'${child.segment}'`];
-    renderNodeEntry(child, childKeyItems, childPathParts, indent, lines);
+    renderNodeEntry(
+      child,
+      childKeyItems,
+      childPathParts,
+      indent,
+      lines,
+      collector
+    );
   }
 
   return lines;
 }
 
-export function generateClient(paths: OpenAPIV3_1.PathsObject): string {
+export function generateClient(
+  paths: OpenAPIV3_1.PathsObject,
+  options?: { typesImportPath?: string }
+): string {
   const tree = buildPathTree(paths);
 
   if (tree.size === 0) {
     return `export function apiClient(baseUrl: string, ${CLIENT_OPTIONS_TYPE}) {\n  return {};\n}`;
   }
 
+  const referencedTypes = new Set<string>();
   const bodyLines: string[] = [];
 
   for (const [, node] of tree) {
     const nodeKeyItems = node.isDynamic
       ? [node.paramName!]
       : [`'${node.segment}'`];
-    renderNodeEntry(node, nodeKeyItems, [node.segment], '    ', bodyLines);
+    renderNodeEntry(
+      node,
+      nodeKeyItems,
+      [node.segment],
+      '    ',
+      bodyLines,
+      referencedTypes
+    );
   }
 
-  return [
-    `export function apiClient(baseUrl: string, ${CLIENT_OPTIONS_TYPE}) {`,
-    `  const _fetch = clientOptions?.fetch ?? globalThis.fetch;`,
-    `  const _baseInit = clientOptions?.init;`,
-    `  return {`,
-    ...bodyLines,
-    `  };`,
-    `}`,
-  ].join('\n');
+  const typesImportPath = options?.typesImportPath ?? './types';
+  const importLine =
+    referencedTypes.size > 0
+      ? `import type { ${[...referencedTypes].sort().join(', ')} } from '${typesImportPath}';\n\n`
+      : '';
+
+  return (
+    importLine +
+    [
+      `export function apiClient(baseUrl: string, ${CLIENT_OPTIONS_TYPE}) {`,
+      `  const _fetch = clientOptions?.fetch ?? globalThis.fetch;`,
+      `  const _baseInit = clientOptions?.init;`,
+      `  return {`,
+      ...bodyLines,
+      `  };`,
+      `}`,
+    ].join('\n')
+  );
 }

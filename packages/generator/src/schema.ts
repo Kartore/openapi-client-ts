@@ -15,6 +15,27 @@ export type SchemaLike = {
   allOf?: SchemaLike[];
 };
 
+export function collectRefTypes(
+  schema: SchemaLike | boolean,
+  collector: Set<string>
+): void {
+  if (!schema || typeof schema === 'boolean') return;
+  if (schema.$ref) {
+    const name = schema.$ref.split('/').pop();
+    if (name) collector.add(name);
+    return;
+  }
+  schema.oneOf?.forEach((s) => collectRefTypes(s, collector));
+  schema.anyOf?.forEach((s) => collectRefTypes(s, collector));
+  schema.allOf?.forEach((s) => collectRefTypes(s, collector));
+  if (schema.properties) {
+    Object.values(schema.properties).forEach((s) =>
+      collectRefTypes(s, collector)
+    );
+  }
+  if (schema.items) collectRefTypes(schema.items, collector);
+}
+
 export function schemaToTypeString(
   schema: SchemaLike | boolean,
   inline = false
