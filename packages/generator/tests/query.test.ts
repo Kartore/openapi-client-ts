@@ -6,6 +6,7 @@ describe('generateQuery', () => {
   test('empty paths produces minimal queryClient', () => {
     expect(generateQuery({}, 'react')).toMatchInlineSnapshot(`
     	"/* eslint-disable */
+    	/* prettier-ignore-start */
     	import type { apiClient } from './client';
     	import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 
@@ -24,6 +25,7 @@ describe('generateQuery', () => {
       expect(generateQuery({ '/users': { get: { responses: {} } } }, 'react'))
         .toMatchInlineSnapshot(`
         	"/* eslint-disable */
+        	/* prettier-ignore-start */
         	import type { apiClient } from './client';
         	import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 
@@ -70,6 +72,7 @@ describe('generateQuery', () => {
         )
       ).toMatchInlineSnapshot(`
       	"/* eslint-disable */
+      	/* prettier-ignore-start */
       	import type { apiClient } from './client';
       	import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 
@@ -109,6 +112,7 @@ describe('generateQuery', () => {
         )
       ).toMatchInlineSnapshot(`
       	"/* eslint-disable */
+      	/* prettier-ignore-start */
       	import type { apiClient } from './client';
       	import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 
@@ -167,6 +171,7 @@ describe('generateQuery', () => {
         )
       ).toMatchInlineSnapshot(`
       	"/* eslint-disable */
+      	/* prettier-ignore-start */
       	import type { apiClient } from './client';
       	import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 
@@ -226,6 +231,7 @@ describe('generateQuery', () => {
         )
       ).toMatchInlineSnapshot(`
       	"/* eslint-disable */
+      	/* prettier-ignore-start */
       	import type { apiClient } from './client';
       	import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 
@@ -279,6 +285,7 @@ describe('generateQuery', () => {
         )
       ).toMatchInlineSnapshot(`
       	"/* eslint-disable */
+      	/* prettier-ignore-start */
       	import type { apiClient } from './client';
       	import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 
@@ -315,6 +322,7 @@ describe('generateQuery', () => {
       expect(generateQuery({ '/users': { post: { responses: {} } } }, 'react'))
         .toMatchInlineSnapshot(`
         	"/* eslint-disable */
+        	/* prettier-ignore-start */
         	import type { apiClient } from './client';
         	import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 
@@ -369,6 +377,7 @@ describe('generateQuery', () => {
         )
       ).toMatchInlineSnapshot(`
       	"/* eslint-disable */
+      	/* prettier-ignore-start */
       	import type { apiClient } from './client';
       	import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 
@@ -416,6 +425,7 @@ describe('generateQuery', () => {
         )
       ).toMatchInlineSnapshot(`
       	"/* eslint-disable */
+      	/* prettier-ignore-start */
       	import type { apiClient } from './client';
       	import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 
@@ -453,6 +463,7 @@ describe('generateQuery', () => {
       expect(generateQuery({ '/users': { get: { responses: {} } } }, 'svelte'))
         .toMatchInlineSnapshot(`
         	"/* eslint-disable */
+        	/* prettier-ignore-start */
         	import type { apiClient } from './client';
         	import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query';
 
@@ -502,6 +513,7 @@ describe('generateQuery', () => {
         )
       ).toMatchInlineSnapshot(`
       	"/* eslint-disable */
+      	/* prettier-ignore-start */
       	import type { apiClient } from './client';
       	import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 

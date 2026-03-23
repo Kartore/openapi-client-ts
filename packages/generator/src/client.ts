@@ -250,7 +250,7 @@ export function generateClient(
       : '';
 
   return (
-    `/* eslint-disable */\n` +
+    `/* eslint-disable */\n/* prettier-ignore-start */\n` +
     importLine +
     preamble +
     [

@@ -16,6 +16,8 @@ export interface GenerateResult {
   client: string;
   /** TanStack Query helper functions generated from paths, or null if no framework was specified */
   query: string | null;
+  /** Barrel index.ts that re-exports from types, client, and query */
+  index: string;
 }
 
 export interface GenerateOptions {
@@ -58,14 +60,19 @@ export async function generateFromObject(
   const schemas: Record<string, OpenAPIV3_1.SchemaObject> =
     spec31.components?.schemas ?? {};
   const paths: OpenAPIV3_1.PathsObject = spec31.paths ?? {};
-  return {
-    types: generateTypes(schemas),
-    client: generateClient(paths, {
-      typesImportPath: options?.typesImportPath,
-      throwOnHttpError: options?.throwOnHttpError,
-    }),
-    query: options?.tanstackQuery
-      ? generateQuery(paths, options.tanstackQuery)
-      : null,
-  };
+  const types = generateTypes(schemas);
+  const client = generateClient(paths, {
+    typesImportPath: options?.typesImportPath,
+    throwOnHttpError: options?.throwOnHttpError,
+  });
+  const query = options?.tanstackQuery
+    ? generateQuery(paths, options.tanstackQuery)
+    : null;
+
+  const indexLines = ['/* eslint-disable */', '/* prettier-ignore-start */'];
+  if (types) indexLines.push(`export * from './types';`);
+  indexLines.push(`export * from './client';`);
+  if (query !== null) indexLines.push(`export * from './query';`);
+
+  return { types, client, query, index: indexLines.join('\n') + '\n' };
 }

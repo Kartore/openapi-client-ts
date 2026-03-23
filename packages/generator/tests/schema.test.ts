@@ -227,6 +227,7 @@ describe('generateTypes', () => {
       })
     ).toMatchInlineSnapshot(`
     	"/* eslint-disable */
+    	/* prettier-ignore-start */
     	/**
     	 * User
     	 */
@@ -247,6 +248,7 @@ describe('generateTypes', () => {
       })
     ).toMatchInlineSnapshot(`
     	"/* eslint-disable */
+    	/* prettier-ignore-start */
     	/**
     	 * A platform user
     	 */
@@ -258,6 +260,7 @@ describe('generateTypes', () => {
     expect(generateTypes({ Status: { type: 'string', example: 'active' } }))
       .toMatchInlineSnapshot(`
       	"/* eslint-disable */
+      	/* prettier-ignore-start */
       	/**
       	 * Status
       	 * @example "active"
@@ -274,6 +277,7 @@ describe('generateTypes', () => {
       })
     ).toMatchInlineSnapshot(`
     	"/* eslint-disable */
+    	/* prettier-ignore-start */
     	/**
     	 * User
     	 */

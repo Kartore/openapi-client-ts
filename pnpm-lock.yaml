@@ -73,10 +73,10 @@ importers:
       '@scalar/openapi-parser':
         specifier: ^0.25.6
         version: 0.25.6
-    devDependencies:
       '@scalar/openapi-types':
-        specifier: ^0.6.1
+        specifier: 0.6.1
         version: 0.6.1
+    devDependencies:
       '@tanstack/react-query':
         specifier: 'catalog:'
         version: 5.95.0(react@19.2.4)

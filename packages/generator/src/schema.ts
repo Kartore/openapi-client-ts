@@ -174,7 +174,7 @@ function generateSchemaType(
   return `${jsdocLines.join('\n')}\nexport type ${name} = ${schemaToTypeString(s)};`;
 }
 
-const ESLINT_DISABLE = '/* eslint-disable */';
+const FILE_HEADER = '/* eslint-disable */\n/* prettier-ignore-start */';
 
 export function generateTypes(
   schemas: Record<string, OpenAPIV3_1.SchemaObject>
@@ -182,5 +182,5 @@ export function generateTypes(
   const body = Object.entries(schemas)
     .map(([name, schema]) => generateSchemaType(name, schema))
     .join('\n\n');
-  return body ? `${ESLINT_DISABLE}\n${body}` : '';
+  return body ? `${FILE_HEADER}\n${body}` : '';
 }
