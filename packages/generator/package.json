@@ -45,9 +45,9 @@
     "@tanstack/svelte-query": "catalog:",
     "@types/node": "catalog:",
     "@typescript/native-preview": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
     "bumpp": "^11.0.1",
-    "vite-plus": "catalog:",
-    "vitest": "npm:@voidzero-dev/vite-plus-test@^0.1.13"
+    "vite-plus": "catalog:"
   },
   "inlinedDependencies": {
     "@scalar/openapi-types": "0.6.1"
