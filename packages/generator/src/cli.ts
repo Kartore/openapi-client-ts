@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { mkdir, writeFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { basename, extname, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 
 import { bundle } from '@scalar/json-magic/bundle';
@@ -57,9 +57,14 @@ try {
     plugins: [fetchUrls(), readFiles(), parseJson(), parseYaml()],
   });
 
+  const typesImportPath =
+    './' + basename(values.types!, extname(values.types!));
   const { types, client, query } = await generateFromObject(
     spec as Record<string, unknown>,
-    { tanstackQuery: values['tanstack-query'] as QueryFramework | undefined }
+    {
+      tanstackQuery: values['tanstack-query'] as QueryFramework | undefined,
+      typesImportPath,
+    }
   );
 
   await mkdir(outputDir, { recursive: true });

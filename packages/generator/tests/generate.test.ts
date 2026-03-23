@@ -136,7 +136,9 @@ describe('generateFromObject', () => {
     `);
 
     expect(result.client).toMatchInlineSnapshot(`
-    	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+    	"import type { User } from './types';
+
+    	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
     	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
     	  const _baseInit = clientOptions?.init;
     	  return {
