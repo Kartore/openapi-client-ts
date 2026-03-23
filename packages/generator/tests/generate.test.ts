@@ -140,6 +140,24 @@ describe('generateFromObject', () => {
     	"/* eslint-disable */
     	import type { User } from './types';
 
+    	export class HTTPError extends Error {
+    	  readonly status: number;
+    	  readonly statusText: string;
+    	  readonly response: Response;
+    	  constructor(response: Response) {
+    	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
+    	    this.name = 'HTTPError';
+    	    this.status = response.status;
+    	    this.statusText = response.statusText;
+    	    this.response = response;
+    	  }
+    	}
+
+    	function _checkOk(response: Response): Response {
+    	  if (!response.ok) throw new HTTPError(response);
+    	  return response;
+    	}
+
     	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
     	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
     	  const _baseInit = clientOptions?.init;
@@ -156,7 +174,7 @@ describe('generateFromObject', () => {
     	            init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
     	          }): Promise<User> => {
     	          const url = \`\${baseUrl}/users/\${id}\`;
-    	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then((r) => r.json()) as Promise<User>;
+    	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(_checkOk).then((r) => r.json()) as Promise<User>;
     	        },
     	      }),
     	    },
