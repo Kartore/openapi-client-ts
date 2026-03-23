@@ -2,7 +2,7 @@
   "name": "@kartore/openapi-client-ts-generator",
   "version": "0.0.3",
   "description": "A starter for creating a TypeScript package.",
-  "homepage": "https://github.com/kartore/openapi-client-ts/packages/generator#readme",
+  "homepage": "http://github.com/Kartore/openapi-client-ts/tree/main/packages/generator#readme",
   "bugs": {
     "url": "https://github.com/kartore/openapi-client-ts/issues"
   },
