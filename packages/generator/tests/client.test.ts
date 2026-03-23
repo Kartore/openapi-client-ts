@@ -94,7 +94,8 @@ describe('buildUrlExpression', () => {
 describe('generateClient', () => {
   test('empty paths produces minimal apiClient', () => {
     expect(generateClient({})).toMatchInlineSnapshot(`
-    	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+    	"/* eslint-disable */
+    	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
     	  return {};
     	}"
     `);
@@ -104,34 +105,36 @@ describe('generateClient', () => {
     test('becomes an object property with key and path', () => {
       expect(generateClient({ '/users': { get: { responses: {} } } }))
         .toMatchInlineSnapshot(`
-      	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
-      	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
-      	  const _baseInit = clientOptions?.init;
-      	  return {
-      	    users: {
-      	      key: ['users'] as const,
-      	      path: '/users' as const,
-      	      /**
-      	       * @method GET
-      	       * @path /users
-      	       */
-      	      get: (params?: {
-      	          init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
-      	        }): Promise<void> => {
-      	        const url = \`\${baseUrl}/users\`;
-      	        return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
-      	      },
-      	    },
-      	  };
-      	}"
-      `);
+        	"/* eslint-disable */
+        	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+        	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
+        	  const _baseInit = clientOptions?.init;
+        	  return {
+        	    users: {
+        	      key: ['users'] as const,
+        	      path: '/users' as const,
+        	      /**
+        	       * @method GET
+        	       * @path /users
+        	       */
+        	      get: (params?: {
+        	          init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
+        	        }): Promise<void> => {
+        	        const url = \`\${baseUrl}/users\`;
+        	        return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
+        	      },
+        	    },
+        	  };
+        	}"
+        `);
     });
 
     test('segment with hyphens is converted to camelCase', () => {
       expect(
         generateClient({ '/auth/verify-email': { post: { responses: {} } } })
       ).toMatchInlineSnapshot(`
-      	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+      	"/* eslint-disable */
+      	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
       	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
       	  const _baseInit = clientOptions?.init;
       	  return {
@@ -159,29 +162,30 @@ describe('generateClient', () => {
     test('segment starting with underscore or dollar is not quoted', () => {
       expect(generateClient({ '/api/_public': { get: { responses: {} } } }))
         .toMatchInlineSnapshot(`
-      	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
-      	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
-      	  const _baseInit = clientOptions?.init;
-      	  return {
-      	    api: {
-      	      _public: {
-      	        key: ['api', '_public'] as const,
-      	        path: '/api/_public' as const,
-      	        /**
-      	         * @method GET
-      	         * @path /api/_public
-      	         */
-      	        get: (params?: {
-      	            init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
-      	          }): Promise<void> => {
-      	          const url = \`\${baseUrl}/api/_public\`;
-      	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
-      	        },
-      	      },
-      	    },
-      	  };
-      	}"
-      `);
+        	"/* eslint-disable */
+        	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+        	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
+        	  const _baseInit = clientOptions?.init;
+        	  return {
+        	    api: {
+        	      _public: {
+        	        key: ['api', '_public'] as const,
+        	        path: '/api/_public' as const,
+        	        /**
+        	         * @method GET
+        	         * @path /api/_public
+        	         */
+        	        get: (params?: {
+        	            init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
+        	          }): Promise<void> => {
+        	          const url = \`\${baseUrl}/api/_public\`;
+        	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
+        	        },
+        	      },
+        	    },
+        	  };
+        	}"
+        `);
     });
   });
 
@@ -199,7 +203,8 @@ describe('generateClient', () => {
           },
         })
       ).toMatchInlineSnapshot(`
-      	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+      	"/* eslint-disable */
+      	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
       	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
       	  const _baseInit = clientOptions?.init;
       	  return {
@@ -237,7 +242,8 @@ describe('generateClient', () => {
           },
         })
       ).toMatchInlineSnapshot(`
-      	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+      	"/* eslint-disable */
+      	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
       	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
       	  const _baseInit = clientOptions?.init;
       	  return {
@@ -265,29 +271,30 @@ describe('generateClient', () => {
     test('defaults to string when no param schema', () => {
       expect(generateClient({ '/users/{id}': { get: { responses: {} } } }))
         .toMatchInlineSnapshot(`
-      	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
-      	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
-      	  const _baseInit = clientOptions?.init;
-      	  return {
-      	    users: {
-      	      id: (id: string) => ({
-      	        key: ['users', id] as const,
-      	        path: \`/users/\${id}\`,
-      	        /**
-      	         * @method GET
-      	         * @path /users/{id}
-      	         */
-      	        get: (params?: {
-      	            init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
-      	          }): Promise<void> => {
-      	          const url = \`\${baseUrl}/users/\${id}\`;
-      	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
-      	        },
-      	      }),
-      	    },
-      	  };
-      	}"
-      `);
+        	"/* eslint-disable */
+        	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+        	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
+        	  const _baseInit = clientOptions?.init;
+        	  return {
+        	    users: {
+        	      id: (id: string) => ({
+        	        key: ['users', id] as const,
+        	        path: \`/users/\${id}\`,
+        	        /**
+        	         * @method GET
+        	         * @path /users/{id}
+        	         */
+        	        get: (params?: {
+        	            init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
+        	          }): Promise<void> => {
+        	          const url = \`\${baseUrl}/users/\${id}\`;
+        	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
+        	        },
+        	      }),
+        	    },
+        	  };
+        	}"
+        `);
     });
   });
 
@@ -313,7 +320,8 @@ describe('generateClient', () => {
           },
         })
       ).toMatchInlineSnapshot(`
-      	"import type { User } from './types';
+      	"/* eslint-disable */
+      	import type { User } from './types';
 
       	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
       	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
@@ -343,27 +351,28 @@ describe('generateClient', () => {
     test('void return type when no success response', () => {
       expect(generateClient({ '/ping': { get: { responses: {} } } }))
         .toMatchInlineSnapshot(`
-      	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
-      	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
-      	  const _baseInit = clientOptions?.init;
-      	  return {
-      	    ping: {
-      	      key: ['ping'] as const,
-      	      path: '/ping' as const,
-      	      /**
-      	       * @method GET
-      	       * @path /ping
-      	       */
-      	      get: (params?: {
-      	          init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
-      	        }): Promise<void> => {
-      	        const url = \`\${baseUrl}/ping\`;
-      	        return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
-      	      },
-      	    },
-      	  };
-      	}"
-      `);
+        	"/* eslint-disable */
+        	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+        	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
+        	  const _baseInit = clientOptions?.init;
+        	  return {
+        	    ping: {
+        	      key: ['ping'] as const,
+        	      path: '/ping' as const,
+        	      /**
+        	       * @method GET
+        	       * @path /ping
+        	       */
+        	      get: (params?: {
+        	          init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
+        	        }): Promise<void> => {
+        	        const url = \`\${baseUrl}/ping\`;
+        	        return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(() => undefined);
+        	      },
+        	    },
+        	  };
+        	}"
+        `);
     });
 
     test('POST with request body generates params with body field', () => {
@@ -387,7 +396,8 @@ describe('generateClient', () => {
           },
         })
       ).toMatchInlineSnapshot(`
-      	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+      	"/* eslint-disable */
+      	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
       	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
       	  const _baseInit = clientOptions?.init;
       	  return {
@@ -431,7 +441,8 @@ describe('generateClient', () => {
           },
         })
       ).toMatchInlineSnapshot(`
-      	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+      	"/* eslint-disable */
+      	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
       	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
       	  const _baseInit = clientOptions?.init;
       	  return {
@@ -476,7 +487,8 @@ describe('generateClient', () => {
           },
         })
       ).toMatchInlineSnapshot(`
-      	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+      	"/* eslint-disable */
+      	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
       	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
       	  const _baseInit = clientOptions?.init;
       	  return {
@@ -519,7 +531,8 @@ describe('generateClient', () => {
           },
         })
       ).toMatchInlineSnapshot(`
-      	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+      	"/* eslint-disable */
+      	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
       	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
       	  const _baseInit = clientOptions?.init;
       	  return {
@@ -572,7 +585,8 @@ describe('generateClient', () => {
           },
         })
       ).toMatchInlineSnapshot(`
-      	"export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
+      	"/* eslint-disable */
+      	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
       	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;
       	  const _baseInit = clientOptions?.init;
       	  return {

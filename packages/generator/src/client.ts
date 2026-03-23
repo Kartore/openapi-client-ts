@@ -181,7 +181,7 @@ export function generateClient(
   const tree = buildPathTree(paths);
 
   if (tree.size === 0) {
-    return `export function apiClient(baseUrl: string, ${CLIENT_OPTIONS_TYPE}) {\n  return {};\n}`;
+    return `/* eslint-disable */\nexport function apiClient(baseUrl: string, ${CLIENT_OPTIONS_TYPE}) {\n  return {};\n}`;
   }
 
   const referencedTypes = new Set<string>();
@@ -208,6 +208,7 @@ export function generateClient(
       : '';
 
   return (
+    `/* eslint-disable */\n` +
     importLine +
     [
       `export function apiClient(baseUrl: string, ${CLIENT_OPTIONS_TYPE}) {`,

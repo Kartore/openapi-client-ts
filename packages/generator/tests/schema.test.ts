@@ -226,7 +226,8 @@ describe('generateTypes', () => {
         },
       })
     ).toMatchInlineSnapshot(`
-    	"/**
+    	"/* eslint-disable */
+    	/**
     	 * User
     	 */
     	export type User = {
@@ -245,7 +246,8 @@ describe('generateTypes', () => {
         },
       })
     ).toMatchInlineSnapshot(`
-    	"/**
+    	"/* eslint-disable */
+    	/**
     	 * A platform user
     	 */
     	export type User = Record<string, unknown>;"
@@ -255,12 +257,13 @@ describe('generateTypes', () => {
   test('includes @example in JSDoc when schema has example', () => {
     expect(generateTypes({ Status: { type: 'string', example: 'active' } }))
       .toMatchInlineSnapshot(`
-    	"/**
-    	 * Status
-    	 * @example "active"
-    	 */
-    	export type Status = string;"
-    `);
+      	"/* eslint-disable */
+      	/**
+      	 * Status
+      	 * @example "active"
+      	 */
+      	export type Status = string;"
+      `);
   });
 
   test('multiple schemas are joined with a blank line', () => {
@@ -270,7 +273,8 @@ describe('generateTypes', () => {
         Post: { type: 'object', properties: {} },
       })
     ).toMatchInlineSnapshot(`
-    	"/**
+    	"/* eslint-disable */
+    	/**
     	 * User
     	 */
     	export type User = Record<string, unknown>;

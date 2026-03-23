@@ -116,27 +116,29 @@ describe('generateFromObject', () => {
     const result = await generateFromObject(spec);
 
     expect(result.types).toMatchInlineSnapshot(`
-      "/**
-       * User
-       */
-      export type User = {
-        /**
-         * @example "123"
-         */
-        id: string;
-        /**
-         * @example "John Doe"
-         */
-        name: string;
-        /**
-         * @example 42
-         */
-        age: number;
-      };"
+    	"/* eslint-disable */
+    	/**
+    	 * User
+    	 */
+    	export type User = {
+    	  /**
+    	   * @example "123"
+    	   */
+    	  id: string;
+    	  /**
+    	   * @example "John Doe"
+    	   */
+    	  name: string;
+    	  /**
+    	   * @example 42
+    	   */
+    	  age: number;
+    	};"
     `);
 
     expect(result.client).toMatchInlineSnapshot(`
-    	"import type { User } from './types';
+    	"/* eslint-disable */
+    	import type { User } from './types';
 
     	export function apiClient(baseUrl: string, clientOptions?: { init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }; fetch?: typeof globalThis.fetch }) {
     	  const _fetch = clientOptions?.fetch ?? globalThis.fetch;

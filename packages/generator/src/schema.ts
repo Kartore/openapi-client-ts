@@ -174,10 +174,13 @@ function generateSchemaType(
   return `${jsdocLines.join('\n')}\nexport type ${name} = ${schemaToTypeString(s)};`;
 }
 
+const ESLINT_DISABLE = '/* eslint-disable */';
+
 export function generateTypes(
   schemas: Record<string, OpenAPIV3_1.SchemaObject>
 ): string {
-  return Object.entries(schemas)
+  const body = Object.entries(schemas)
     .map(([name, schema]) => generateSchemaType(name, schema))
     .join('\n\n');
+  return body ? `${ESLINT_DISABLE}\n${body}` : '';
 }

@@ -5,7 +5,8 @@ import { generateQuery } from '../src/query';
 describe('generateQuery', () => {
   test('empty paths produces minimal queryClient', () => {
     expect(generateQuery({}, 'react')).toMatchInlineSnapshot(`
-    	"import type { apiClient } from './client';
+    	"/* eslint-disable */
+    	import type { apiClient } from './client';
     	import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 
     	type ApiClient = ReturnType<typeof apiClient>;
@@ -22,33 +23,34 @@ describe('generateQuery', () => {
     test('static segment with operation has key and path', () => {
       expect(generateQuery({ '/users': { get: { responses: {} } } }, 'react'))
         .toMatchInlineSnapshot(`
-      	"import type { apiClient } from './client';
-      	import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
+        	"/* eslint-disable */
+        	import type { apiClient } from './client';
+        	import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 
-      	type ApiClient = ReturnType<typeof apiClient>;
-      	type Options = Pick<UseQueryOptions, 'retry' | 'retryDelay' | 'gcTime' | 'networkMode' | 'enabled'>;
-      	type MutateOptions = Pick<UseMutationOptions, 'gcTime' | 'networkMode' | 'retry' | 'retryDelay' | 'throwOnError' | 'scope'>;
+        	type ApiClient = ReturnType<typeof apiClient>;
+        	type Options = Pick<UseQueryOptions, 'retry' | 'retryDelay' | 'gcTime' | 'networkMode' | 'enabled'>;
+        	type MutateOptions = Pick<UseMutationOptions, 'gcTime' | 'networkMode' | 'retry' | 'retryDelay' | 'throwOnError' | 'scope'>;
 
-      	export function queryClient(client: ApiClient) {
-      	  return {
-      	    users: {
-      	      key: client.users.key,
-      	      path: client.users.path,
-      	      /**
-      	       * @method GET
-      	       * @path /users
-      	       */
-      	      get: (params?: {
-      	          init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
-      	        }, options?: Options) => ({
-      	        queryKey: client.users.key,
-      	        queryFn: () => client.users.get(params),
-      	        ...options,
-      	      }),
-      	    },
-      	  };
-      	}"
-      `);
+        	export function queryClient(client: ApiClient) {
+        	  return {
+        	    users: {
+        	      key: client.users.key,
+        	      path: client.users.path,
+        	      /**
+        	       * @method GET
+        	       * @path /users
+        	       */
+        	      get: (params?: {
+        	          init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
+        	        }, options?: Options) => ({
+        	        queryKey: client.users.key,
+        	        queryFn: () => client.users.get(params),
+        	        ...options,
+        	      }),
+        	    },
+        	  };
+        	}"
+        `);
     });
 
     test('intermediate node without operation has no key or path', () => {
@@ -67,7 +69,8 @@ describe('generateQuery', () => {
           'react'
         )
       ).toMatchInlineSnapshot(`
-      	"import type { apiClient } from './client';
+      	"/* eslint-disable */
+      	import type { apiClient } from './client';
       	import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 
       	type ApiClient = ReturnType<typeof apiClient>;
@@ -105,7 +108,8 @@ describe('generateQuery', () => {
           'react'
         )
       ).toMatchInlineSnapshot(`
-      	"import type { apiClient } from './client';
+      	"/* eslint-disable */
+      	import type { apiClient } from './client';
       	import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 
       	type ApiClient = ReturnType<typeof apiClient>;
@@ -162,7 +166,8 @@ describe('generateQuery', () => {
           'react'
         )
       ).toMatchInlineSnapshot(`
-      	"import type { apiClient } from './client';
+      	"/* eslint-disable */
+      	import type { apiClient } from './client';
       	import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 
       	type ApiClient = ReturnType<typeof apiClient>;
@@ -220,7 +225,8 @@ describe('generateQuery', () => {
           'react'
         )
       ).toMatchInlineSnapshot(`
-      	"import type { apiClient } from './client';
+      	"/* eslint-disable */
+      	import type { apiClient } from './client';
       	import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 
       	type ApiClient = ReturnType<typeof apiClient>;
@@ -272,7 +278,8 @@ describe('generateQuery', () => {
           'react'
         )
       ).toMatchInlineSnapshot(`
-      	"import type { apiClient } from './client';
+      	"/* eslint-disable */
+      	import type { apiClient } from './client';
       	import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 
       	type ApiClient = ReturnType<typeof apiClient>;
@@ -307,33 +314,34 @@ describe('generateQuery', () => {
     test('POST without body', () => {
       expect(generateQuery({ '/users': { post: { responses: {} } } }, 'react'))
         .toMatchInlineSnapshot(`
-      	"import type { apiClient } from './client';
-      	import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
+        	"/* eslint-disable */
+        	import type { apiClient } from './client';
+        	import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 
-      	type ApiClient = ReturnType<typeof apiClient>;
-      	type Options = Pick<UseQueryOptions, 'retry' | 'retryDelay' | 'gcTime' | 'networkMode' | 'enabled'>;
-      	type MutateOptions = Pick<UseMutationOptions, 'gcTime' | 'networkMode' | 'retry' | 'retryDelay' | 'throwOnError' | 'scope'>;
+        	type ApiClient = ReturnType<typeof apiClient>;
+        	type Options = Pick<UseQueryOptions, 'retry' | 'retryDelay' | 'gcTime' | 'networkMode' | 'enabled'>;
+        	type MutateOptions = Pick<UseMutationOptions, 'gcTime' | 'networkMode' | 'retry' | 'retryDelay' | 'throwOnError' | 'scope'>;
 
-      	export function queryClient(client: ApiClient) {
-      	  return {
-      	    users: {
-      	      key: client.users.key,
-      	      path: client.users.path,
-      	      /**
-      	       * @method POST
-      	       * @path /users
-      	       */
-      	      post: (options?: MutateOptions) => ({
-      	        mutationKey: [...client.users.key, 'post'],
-      	        mutationFn: (params?: {
-      	          init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
-      	        }) => client.users.post(params),
-      	        ...options,
-      	      }),
-      	    },
-      	  };
-      	}"
-      `);
+        	export function queryClient(client: ApiClient) {
+        	  return {
+        	    users: {
+        	      key: client.users.key,
+        	      path: client.users.path,
+        	      /**
+        	       * @method POST
+        	       * @path /users
+        	       */
+        	      post: (options?: MutateOptions) => ({
+        	        mutationKey: [...client.users.key, 'post'],
+        	        mutationFn: (params?: {
+        	          init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
+        	        }) => client.users.post(params),
+        	        ...options,
+        	      }),
+        	    },
+        	  };
+        	}"
+        `);
     });
 
     test('POST with request body makes params required', () => {
@@ -360,7 +368,8 @@ describe('generateQuery', () => {
           'react'
         )
       ).toMatchInlineSnapshot(`
-      	"import type { apiClient } from './client';
+      	"/* eslint-disable */
+      	import type { apiClient } from './client';
       	import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 
       	type ApiClient = ReturnType<typeof apiClient>;
@@ -406,7 +415,8 @@ describe('generateQuery', () => {
           'react'
         )
       ).toMatchInlineSnapshot(`
-      	"import type { apiClient } from './client';
+      	"/* eslint-disable */
+      	import type { apiClient } from './client';
       	import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 
       	type ApiClient = ReturnType<typeof apiClient>;
@@ -442,33 +452,34 @@ describe('generateQuery', () => {
     test('svelte-query uses CreateQueryOptions and CreateMutationOptions', () => {
       expect(generateQuery({ '/users': { get: { responses: {} } } }, 'svelte'))
         .toMatchInlineSnapshot(`
-      	"import type { apiClient } from './client';
-      	import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query';
+        	"/* eslint-disable */
+        	import type { apiClient } from './client';
+        	import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query';
 
-      	type ApiClient = ReturnType<typeof apiClient>;
-      	type Options = Pick<CreateQueryOptions, 'retry' | 'retryDelay' | 'gcTime' | 'networkMode' | 'enabled'>;
-      	type MutateOptions = Pick<CreateMutationOptions, 'gcTime' | 'networkMode' | 'retry' | 'retryDelay' | 'throwOnError' | 'scope'>;
+        	type ApiClient = ReturnType<typeof apiClient>;
+        	type Options = Pick<CreateQueryOptions, 'retry' | 'retryDelay' | 'gcTime' | 'networkMode' | 'enabled'>;
+        	type MutateOptions = Pick<CreateMutationOptions, 'gcTime' | 'networkMode' | 'retry' | 'retryDelay' | 'throwOnError' | 'scope'>;
 
-      	export function queryClient(client: ApiClient) {
-      	  return {
-      	    users: {
-      	      key: client.users.key,
-      	      path: client.users.path,
-      	      /**
-      	       * @method GET
-      	       * @path /users
-      	       */
-      	      get: (params?: {
-      	          init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
-      	        }, options?: Options) => ({
-      	        queryKey: client.users.key,
-      	        queryFn: () => client.users.get(params),
-      	        ...options,
-      	      }),
-      	    },
-      	  };
-      	}"
-      `);
+        	export function queryClient(client: ApiClient) {
+        	  return {
+        	    users: {
+        	      key: client.users.key,
+        	      path: client.users.path,
+        	      /**
+        	       * @method GET
+        	       * @path /users
+        	       */
+        	      get: (params?: {
+        	          init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
+        	        }, options?: Options) => ({
+        	        queryKey: client.users.key,
+        	        queryFn: () => client.users.get(params),
+        	        ...options,
+        	      }),
+        	    },
+        	  };
+        	}"
+        `);
     });
   });
 
@@ -490,7 +501,8 @@ describe('generateQuery', () => {
           'react'
         )
       ).toMatchInlineSnapshot(`
-      	"import type { apiClient } from './client';
+      	"/* eslint-disable */
+      	import type { apiClient } from './client';
       	import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
 
       	type ApiClient = ReturnType<typeof apiClient>;

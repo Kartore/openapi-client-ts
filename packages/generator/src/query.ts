@@ -176,6 +176,7 @@ export function generateQuery(
   const tree = buildPathTree(paths);
 
   const header = [
+    `/* eslint-disable */`,
     `import type { apiClient } from './client';`,
     `import type { ${queryOptionsType}, ${mutationOptionsType} } from '${pkg}';`,
     ``,
