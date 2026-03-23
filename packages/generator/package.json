@@ -37,10 +37,10 @@
   },
   "dependencies": {
     "@scalar/json-magic": "^0.12.4",
-    "@scalar/openapi-parser": "^0.25.6"
+    "@scalar/openapi-parser": "^0.25.6",
+    "@scalar/openapi-types": "0.6.1"
   },
   "devDependencies": {
-    "@scalar/openapi-types": "^0.6.1",
     "@tanstack/react-query": "catalog:",
     "@tanstack/svelte-query": "catalog:",
     "@types/node": "catalog:",
@@ -48,8 +48,5 @@
     "@vitest/coverage-v8": "catalog:",
     "bumpp": "^11.0.1",
     "vite-plus": "catalog:"
-  },
-  "inlinedDependencies": {
-    "@scalar/openapi-types": "0.6.1"
   }
 }

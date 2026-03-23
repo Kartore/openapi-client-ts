@@ -124,6 +124,7 @@ describe('generateClient', () => {
       expect(generateClient({ '/users': { get: { responses: {} } } }))
         .toMatchInlineSnapshot(`
         	"/* eslint-disable */
+        	/* prettier-ignore-start */
         	export class HTTPError extends Error {
         	  readonly status: number;
         	  readonly statusText: string;
@@ -170,6 +171,7 @@ describe('generateClient', () => {
         generateClient({ '/auth/verify-email': { post: { responses: {} } } })
       ).toMatchInlineSnapshot(`
       	"/* eslint-disable */
+      	/* prettier-ignore-start */
       	export class HTTPError extends Error {
       	  readonly status: number;
       	  readonly statusText: string;
@@ -217,6 +219,7 @@ describe('generateClient', () => {
       expect(generateClient({ '/api/_public': { get: { responses: {} } } }))
         .toMatchInlineSnapshot(`
         	"/* eslint-disable */
+        	/* prettier-ignore-start */
         	export class HTTPError extends Error {
         	  readonly status: number;
         	  readonly statusText: string;
@@ -276,6 +279,7 @@ describe('generateClient', () => {
         })
       ).toMatchInlineSnapshot(`
       	"/* eslint-disable */
+      	/* prettier-ignore-start */
       	export class HTTPError extends Error {
       	  readonly status: number;
       	  readonly statusText: string;
@@ -333,6 +337,7 @@ describe('generateClient', () => {
         })
       ).toMatchInlineSnapshot(`
       	"/* eslint-disable */
+      	/* prettier-ignore-start */
       	export class HTTPError extends Error {
       	  readonly status: number;
       	  readonly statusText: string;
@@ -380,6 +385,7 @@ describe('generateClient', () => {
       expect(generateClient({ '/users/{id}': { get: { responses: {} } } }))
         .toMatchInlineSnapshot(`
         	"/* eslint-disable */
+        	/* prettier-ignore-start */
         	export class HTTPError extends Error {
         	  readonly status: number;
         	  readonly statusText: string;
@@ -447,6 +453,7 @@ describe('generateClient', () => {
         })
       ).toMatchInlineSnapshot(`
       	"/* eslint-disable */
+      	/* prettier-ignore-start */
       	import type { User } from './types';
 
       	export class HTTPError extends Error {
@@ -496,6 +503,7 @@ describe('generateClient', () => {
       expect(generateClient({ '/ping': { get: { responses: {} } } }))
         .toMatchInlineSnapshot(`
         	"/* eslint-disable */
+        	/* prettier-ignore-start */
         	export class HTTPError extends Error {
         	  readonly status: number;
         	  readonly statusText: string;
@@ -559,6 +567,7 @@ describe('generateClient', () => {
         })
       ).toMatchInlineSnapshot(`
       	"/* eslint-disable */
+      	/* prettier-ignore-start */
       	export class HTTPError extends Error {
       	  readonly status: number;
       	  readonly statusText: string;
@@ -622,6 +631,7 @@ describe('generateClient', () => {
         })
       ).toMatchInlineSnapshot(`
       	"/* eslint-disable */
+      	/* prettier-ignore-start */
       	export class HTTPError extends Error {
       	  readonly status: number;
       	  readonly statusText: string;
@@ -686,6 +696,7 @@ describe('generateClient', () => {
         })
       ).toMatchInlineSnapshot(`
       	"/* eslint-disable */
+      	/* prettier-ignore-start */
       	export class HTTPError extends Error {
       	  readonly status: number;
       	  readonly statusText: string;
@@ -748,6 +759,7 @@ describe('generateClient', () => {
         })
       ).toMatchInlineSnapshot(`
       	"/* eslint-disable */
+      	/* prettier-ignore-start */
       	export class HTTPError extends Error {
       	  readonly status: number;
       	  readonly statusText: string;
@@ -820,6 +832,7 @@ describe('generateClient', () => {
         })
       ).toMatchInlineSnapshot(`
       	"/* eslint-disable */
+      	/* prettier-ignore-start */
       	export class HTTPError extends Error {
       	  readonly status: number;
       	  readonly statusText: string;

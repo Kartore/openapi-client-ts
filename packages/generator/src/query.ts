@@ -177,6 +177,7 @@ export function generateQuery(
 
   const header = [
     `/* eslint-disable */`,
+    `/* prettier-ignore-start */`,
     `import type { apiClient } from './client';`,
     `import type { ${queryOptionsType}, ${mutationOptionsType} } from '${pkg}';`,
     ``,

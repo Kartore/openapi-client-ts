@@ -117,6 +117,7 @@ describe('generateFromObject', () => {
 
     expect(result.types).toMatchInlineSnapshot(`
     	"/* eslint-disable */
+    	/* prettier-ignore-start */
     	/**
     	 * User
     	 */
@@ -138,6 +139,7 @@ describe('generateFromObject', () => {
 
     expect(result.client).toMatchInlineSnapshot(`
     	"/* eslint-disable */
+    	/* prettier-ignore-start */
     	import type { User } from './types';
 
     	export class HTTPError extends Error {

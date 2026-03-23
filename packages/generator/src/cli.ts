@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { mkdir, writeFile } from 'node:fs/promises';
-import { basename, extname, resolve } from 'node:path';
+import { resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 
 import { bundle } from '@scalar/json-magic/bundle';
@@ -19,22 +19,16 @@ Usage: openapi-gen <input> [options]
   <input>   URL or local file path to an OpenAPI 3.1 spec (JSON or YAML)
 
 Options:
-  -o, --output <dir>       Output directory (default: ".")
-  --types <filename>       Types output filename (default: "types.ts")
-  --client <filename>      Client output filename (default: "client.ts")
-  --query <filename>       TanStack Query helpers output filename (default: "query.ts")
-  --tanstack-query <name>  TanStack Query framework: react or svelte
+  -o, --output <dir>        Output directory (default: ".")
+  --tanstack-query <name>   TanStack Query framework: react or svelte
   --no-throw-on-http-error  Do not throw HTTPError on non-ok responses
-  -h, --help               Show this help message
+  -h, --help                Show this help message
 `;
 
 const { values, positionals } = parseArgs({
   args: process.argv.slice(2),
   options: {
     output: { type: 'string', short: 'o', default: '.' },
-    types: { type: 'string', default: 'types.ts' },
-    client: { type: 'string', default: 'client.ts' },
-    query: { type: 'string', default: 'query.ts' },
     'tanstack-query': { type: 'string' },
     'no-throw-on-http-error': { type: 'boolean', default: false },
     help: { type: 'boolean', short: 'h', default: false },
@@ -49,9 +43,6 @@ if (values.help || positionals.length === 0) {
 
 const input = positionals[0];
 const outputDir = resolve(values.output!);
-const typesFile = resolve(outputDir, values.types!);
-const clientFile = resolve(outputDir, values.client!);
-const queryFile = resolve(outputDir, values.query!);
 
 try {
   const spec = await bundle(input, {
@@ -59,28 +50,31 @@ try {
     plugins: [fetchUrls(), readFiles(), parseJson(), parseYaml()],
   });
 
-  const typesImportPath =
-    './' + basename(values.types!, extname(values.types!));
-  const { types, client, query } = await generateFromObject(
+  const { types, client, query, index } = await generateFromObject(
     spec as Record<string, unknown>,
     {
       tanstackQuery: values['tanstack-query'] as QueryFramework | undefined,
-      typesImportPath,
       throwOnHttpError: !values['no-throw-on-http-error'],
     }
   );
 
   await mkdir(outputDir, { recursive: true });
+
   const writes: Promise<void>[] = [
-    writeFile(typesFile, types, 'utf8'),
-    writeFile(clientFile, client, 'utf8'),
+    writeFile(resolve(outputDir, 'client.ts'), client, 'utf8'),
+    writeFile(resolve(outputDir, 'index.ts'), index, 'utf8'),
   ];
-  if (query !== null) writes.push(writeFile(queryFile, query, 'utf8'));
+  if (types)
+    writes.push(writeFile(resolve(outputDir, 'types.ts'), types, 'utf8'));
+  if (query !== null)
+    writes.push(writeFile(resolve(outputDir, 'query.ts'), query, 'utf8'));
   await Promise.all(writes);
 
-  console.info(`types  → ${typesFile}`);
-  console.info(`client → ${clientFile}`);
-  if (query !== null) console.info(`query  → ${queryFile}`);
+  if (types) console.info(`types  → ${resolve(outputDir, 'types.ts')}`);
+  console.info(`client → ${resolve(outputDir, 'client.ts')}`);
+  if (query !== null)
+    console.info(`query  → ${resolve(outputDir, 'query.ts')}`);
+  console.info(`index  → ${resolve(outputDir, 'index.ts')}`);
 } catch (err) {
   console.error(`error: ${err instanceof Error ? err.message : String(err)}`);
   process.exit(1);
