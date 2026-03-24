@@ -146,17 +146,34 @@ describe('generateFromObject', () => {
     	  readonly status: number;
     	  readonly statusText: string;
     	  readonly response: Response;
-    	  constructor(response: Response) {
+    	  readonly responseText: string | null;
+    	  readonly responseJson: unknown | null;
+    	  constructor(
+    	    response: Response,
+    	    responseText: string | null,
+    	    responseJson: unknown | null
+    	  ) {
     	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
     	    this.name = 'HTTPError';
     	    this.status = response.status;
     	    this.statusText = response.statusText;
     	    this.response = response;
+    	    this.responseText = responseText;
+    	    this.responseJson = responseJson;
     	  }
     	}
 
-    	function _checkOk(response: Response): Response {
-    	  if (!response.ok) throw new HTTPError(response);
+    	async function _checkOk(response: Response): Promise<Response> {
+    	  if (!response.ok) {
+    	    const responseText = await response.text().catch(() => null);
+    	    let responseJson: unknown | null = null;
+    	    if (responseText) {
+    	      try {
+    	        responseJson = JSON.parse(responseText);
+    	      } catch {}
+    	    }
+    	    throw new HTTPError(response, responseText, responseJson);
+    	  }
     	  return response;
     	}
 
