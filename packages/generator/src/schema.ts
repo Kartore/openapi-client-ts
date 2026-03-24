@@ -15,6 +15,8 @@ export type SchemaLike = {
   allOf?: SchemaLike[];
   enum?: unknown[];
   additionalProperties?: boolean | SchemaLike;
+  minItems?: number;
+  maxItems?: number;
 };
 
 export function collectRefTypes(
@@ -130,6 +132,14 @@ export function schemaToTypeString(
     const itemType = schema.items
       ? schemaToTypeString(schema.items, inline)
       : 'unknown';
+    if (
+      schema.minItems !== undefined &&
+      schema.minItems === schema.maxItems &&
+      schema.minItems > 0
+    ) {
+      const elements = Array(schema.minItems).fill(itemType).join(', ');
+      return withNull(`[${elements}]`);
+    }
     return withNull(`${itemType}[]`);
   }
 
@@ -161,13 +171,23 @@ export function schemaToTypeString(
   return withNull(resolved.length > 0 ? resolved.join(' | ') : 'unknown');
 }
 
+/** additionalProperties が true または空スキーマ {} かどうか判定する */
+function isAnyAdditionalProperties(
+  ap: boolean | SchemaLike | undefined
+): boolean {
+  if (ap === true) return true;
+  if (ap && typeof ap === 'object' && Object.keys(ap).length === 0) return true;
+  return false;
+}
+
 function objectSchemaToTypeString(schema: SchemaLike, inline = false): string {
   const properties = schema.properties ?? {};
   const required = new Set<string>(schema.required ?? []);
   const hasProperties = Object.keys(properties).length > 0;
+  const anyAp = isAnyAdditionalProperties(schema.additionalProperties);
 
   if (!hasProperties) {
-    if (schema.additionalProperties === true) {
+    if (anyAp) {
       return 'any';
     }
     if (
@@ -186,6 +206,7 @@ function objectSchemaToTypeString(schema: SchemaLike, inline = false): string {
       const jsdoc = buildPropertyJsdoc(propSchema, true);
       return `${jsdoc}${name}${optional}: ${schemaToTypeString(propSchema, true)}`;
     });
+    if (anyAp) fields.push('[key: string]: any');
     return `{ ${fields.join('; ')} }`;
   }
 
@@ -196,6 +217,7 @@ function objectSchemaToTypeString(schema: SchemaLike, inline = false): string {
     const optional = isRequired ? '' : '?';
     return `${jsdoc}  ${name}${optional}: ${propType};`;
   });
+  if (anyAp) lines.push('  [key: string]: any;');
 
   return `{\n${lines.join('\n')}\n}`;
 }

@@ -222,6 +222,11 @@ describe('schemaToTypeString', () => {
         schemaToTypeString({ type: 'object', additionalProperties: true })
       ).toBe('any');
     });
+    test('additionalProperties: {} (empty schema) with no properties returns any', () => {
+      expect(
+        schemaToTypeString({ type: 'object', additionalProperties: {} })
+      ).toBe('any');
+    });
     test('additionalProperties schema returns Record<string, valueType>', () => {
       expect(
         schemaToTypeString({
@@ -242,6 +247,89 @@ describe('schemaToTypeString', () => {
           additionalProperties: { $ref: '#/components/schemas/User' },
         })
       ).toBe('Record<string, User>');
+    });
+    test('additionalProperties: true with properties adds index signature', () => {
+      expect(
+        schemaToTypeString({
+          type: 'object',
+          properties: { metadata: { $ref: '#/components/schemas/Meta' } },
+          required: ['metadata'],
+          additionalProperties: true,
+        })
+      ).toMatchInlineSnapshot(`
+        "{
+          metadata: Meta;
+          [key: string]: any;
+        }"
+      `);
+    });
+    test('additionalProperties: {} with properties adds index signature', () => {
+      expect(
+        schemaToTypeString({
+          type: 'object',
+          properties: { name: { type: 'string' } },
+          required: ['name'],
+          additionalProperties: {},
+        })
+      ).toMatchInlineSnapshot(`
+        "{
+          name: string;
+          [key: string]: any;
+        }"
+      `);
+    });
+  });
+
+  describe('tuple types (minItems === maxItems)', () => {
+    test('minItems === maxItems === 4 generates tuple', () => {
+      expect(
+        schemaToTypeString({
+          type: 'array',
+          items: { type: 'number' },
+          minItems: 4,
+          maxItems: 4,
+        })
+      ).toBe('[number, number, number, number]');
+    });
+    test('minItems === maxItems === 2 generates pair tuple', () => {
+      expect(
+        schemaToTypeString({
+          type: 'array',
+          items: { type: 'string' },
+          minItems: 2,
+          maxItems: 2,
+        })
+      ).toBe('[string, string]');
+    });
+    test('minItems !== maxItems generates array type', () => {
+      expect(
+        schemaToTypeString({
+          type: 'array',
+          items: { type: 'number' },
+          minItems: 2,
+          maxItems: 4,
+        })
+      ).toBe('number[]');
+    });
+    test('only minItems set (no maxItems) generates array type', () => {
+      expect(
+        schemaToTypeString({
+          type: 'array',
+          items: { type: 'number' },
+          minItems: 4,
+        })
+      ).toBe('number[]');
+    });
+    test('nullable tuple appends | null', () => {
+      expect(
+        schemaToTypeString({
+          type: 'array',
+          items: { type: 'number' },
+          minItems: 2,
+          maxItems: 2,
+          nullable: true,
+        })
+      ).toBe('[number, number] | null');
     });
   });
 
