@@ -65,14 +65,23 @@ export function schemaToTypeString(
   if (schema === true) return 'any';
   if (typeof schema === 'boolean') return 'unknown';
 
-  const nullable = schema.nullable === true;
+  // Extract types early so we can detect 'null' in the array (OpenAPI 3.1 style)
+  const rawTypes = Array.isArray(schema.type)
+    ? schema.type
+    : schema.type != null
+      ? [schema.type]
+      : [];
+  const types = rawTypes.filter((t) => t !== 'null');
+
+  const nullable = schema.nullable === true || rawTypes.includes('null');
   const withNull = (t: string) => (nullable ? `${t} | null` : t);
 
   // OpenAPI 3.0 pattern: { nullable: true } alone (no type/ref/composition) means "null"
+  // Also handles OpenAPI 3.1 pattern: { type: 'null' }
   if (
     nullable &&
     !schema.$ref &&
-    !schema.type &&
+    types.length === 0 &&
     !schema.oneOf &&
     !schema.anyOf &&
     !schema.allOf &&
@@ -133,12 +142,6 @@ export function schemaToTypeString(
       .join(' & ');
     return hasNullMember || nullable ? `${allOfType} | null` : allOfType;
   }
-
-  const types = Array.isArray(schema.type)
-    ? schema.type
-    : schema.type != null
-      ? [schema.type]
-      : [];
 
   if (
     types.includes('object') ||
