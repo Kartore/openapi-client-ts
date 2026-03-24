@@ -20,10 +20,11 @@ npx openapi-gen ./openapi.yaml -o ./src/api
 npx openapi-gen https://example.com/openapi.json -o ./src/api
 ```
 
-This generates two files in the output directory:
+This generates the following files in the output directory:
 
 - `types.ts` — TypeScript types from `components.schemas`
 - `client.ts` — Typed `apiClient` factory function from `paths`
+- `index.ts` — Barrel re-export
 
 ### TanStack Query helpers
 
@@ -39,13 +40,13 @@ Adds a `query.ts` file with `queryClient` helpers wrapping the API client.
 
 ### All options
 
-| Option                    | Default     | Description                     |
-| ------------------------- | ----------- | ------------------------------- |
-| `-o, --output <dir>`      | `.`         | Output directory                |
-| `--types <filename>`      | `types.ts`  | Types output filename           |
-| `--client <filename>`     | `client.ts` | Client output filename          |
-| `--query <filename>`      | `query.ts`  | TanStack Query helpers filename |
-| `--tanstack-query <name>` | —           | `react` or `svelte`             |
+| Option                      | Default | Description                                                            |
+| --------------------------- | ------- | ---------------------------------------------------------------------- |
+| `-o, --output <dir>`        | `.`     | Output directory                                                       |
+| `--tanstack-query <name>`   | —       | TanStack Query framework: `react` or `svelte`                          |
+| `--no-throw-on-http-error`  | —       | Do not throw `HTTPError` on non-2xx responses                          |
+| `--allow-x-typescript-type` | —       | Enable `x-typescript-type` extension (trusted sources only, see below) |
+| `-h, --help`                | —       | Show help                                                              |
 
 ## Node.js API
 
@@ -54,9 +55,9 @@ Adds a `query.ts` file with `queryClient` helpers wrapping the API client.
 ```ts
 import { generateFrom } from '@kartore/openapi-client-ts-generator/node';
 
-const { types, client, query } = await generateFrom('./openapi.yaml');
+const { types, client, query, index } = await generateFrom('./openapi.yaml');
 // or
-const { types, client, query } = await generateFrom(
+const { types, client, query, index } = await generateFrom(
   'https://example.com/openapi.json'
 );
 ```
@@ -75,6 +76,17 @@ const { types, client } = await generateFrom({
 });
 ```
 
+### Generate and write files to disk
+
+```ts
+import { generateAndWrite } from '@kartore/openapi-client-ts-generator/node';
+
+await generateAndWrite('./openapi.yaml', {
+  outDir: './src/api',
+  tanstackQuery: 'react',
+});
+```
+
 ### With TanStack Query
 
 ```ts
@@ -85,11 +97,57 @@ const { types, client, query } = await generateFrom('./openapi.yaml', {
 });
 ```
 
+### Options
+
+| Option                 | Type      | Default     | Description                                                            |
+| ---------------------- | --------- | ----------- | ---------------------------------------------------------------------- |
+| `tanstackQuery`        | `string`  | —           | TanStack Query framework: `'react'` or `'svelte'`                      |
+| `typesImportPath`      | `string`  | `'./types'` | Import path used in `client.ts` to reference `types.ts`                |
+| `throwOnHttpError`     | `boolean` | `true`      | Throw `HTTPError` when `response.ok` is false                          |
+| `allowXTypescriptType` | `boolean` | `false`     | Enable `x-typescript-type` extension (trusted sources only, see below) |
+
+### `x-typescript-type` extension (opt-in)
+
+When the OpenAPI spec comes from a **trusted source**, you can use the `x-typescript-type` custom extension to override the generated type with an arbitrary TypeScript type expression:
+
+```yaml
+components:
+  schemas:
+    MaplibreStyleSpecification:
+      type: object
+      x-typescript-type: "import('maplibre-gl').StyleSpecification & { metadata: MaplibreMetadata }"
+      properties:
+        version:
+          type: integer
+```
+
+```ts
+export type MaplibreStyleSpecification =
+  import('maplibre-gl').StyleSpecification & { metadata: MaplibreMetadata };
+```
+
+This also works on inline property schemas.
+
+> **Security note:** The value of `x-typescript-type` is injected verbatim into the generated TypeScript file. Only enable this option when the spec comes from a source you control.
+
+Enable via CLI:
+
+```bash
+npx openapi-gen ./openapi.yaml -o ./src/api --allow-x-typescript-type
+```
+
+Enable via API:
+
+```ts
+await generateFrom('./openapi.yaml', { allowXTypescriptType: true });
+```
+
 ## Generated output
 
 ### `types.ts`
 
 ```ts
+/* eslint-disable */
 export type User = {
   id: string;
   name: string;
@@ -105,8 +163,9 @@ export function apiClient(baseUrl: string, clientOptions?: { ... }) {
   return {
     users: {
       id: (id: string) => ({
-        get: (params?) => Promise<User>;
-        // ...
+        key: ['users', id] as const,
+        path: `/users/${id}`,
+        get: (params?) => Promise<User>,
       }),
     },
   };
@@ -116,11 +175,11 @@ export function apiClient(baseUrl: string, clientOptions?: { ... }) {
 ### `query.ts` (with `--tanstack-query react`)
 
 ```ts
-export function queryClient(client: ApiClient) {
+export function queryClient(client: ReturnType<typeof apiClient>) {
   return {
     users: {
       id: (id: string) => ({
-        get: (params?, options?) => UseQueryOptions<User>;
+        get: (params?, options?) => UseQueryOptions<User>,
       }),
     },
   };

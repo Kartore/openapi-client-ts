@@ -19,10 +19,11 @@ Usage: openapi-gen <input> [options]
   <input>   URL or local file path to an OpenAPI 3.1 spec (JSON or YAML)
 
 Options:
-  -o, --output <dir>        Output directory (default: ".")
-  --tanstack-query <name>   TanStack Query framework: react or svelte
-  --no-throw-on-http-error  Do not throw HTTPError on non-ok responses
-  -h, --help                Show this help message
+  -o, --output <dir>          Output directory (default: ".")
+  --tanstack-query <name>     TanStack Query framework: react or svelte
+  --no-throw-on-http-error    Do not throw HTTPError on non-ok responses
+  --allow-x-typescript-type   Enable x-typescript-type extension (trusted sources only)
+  -h, --help                  Show this help message
 `;
 
 const { values, positionals } = parseArgs({
@@ -31,6 +32,7 @@ const { values, positionals } = parseArgs({
     output: { type: 'string', short: 'o', default: '.' },
     'tanstack-query': { type: 'string' },
     'no-throw-on-http-error': { type: 'boolean', default: false },
+    'allow-x-typescript-type': { type: 'boolean', default: false },
     help: { type: 'boolean', short: 'h', default: false },
   },
   allowPositionals: true,
@@ -55,6 +57,7 @@ try {
     {
       tanstackQuery: values['tanstack-query'] as QueryFramework | undefined,
       throwOnHttpError: !values['no-throw-on-http-error'],
+      allowXTypescriptType: values['allow-x-typescript-type'],
     }
   );
 

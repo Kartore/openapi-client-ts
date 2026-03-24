@@ -20,6 +20,15 @@ export type SchemaLike = {
   'x-typescript-type'?: string;
 };
 
+export interface SchemaGenerationOptions {
+  /**
+   * When true, `x-typescript-type` on a schema is used as-is as the TypeScript type expression.
+   * Disabled by default because the value is injected verbatim into generated code —
+   * only enable this when the OpenAPI spec comes from a trusted source.
+   */
+  allowXTypescriptType?: boolean;
+}
+
 export function collectRefTypes(
   schema: SchemaLike | boolean,
   collector: Set<string>
@@ -49,7 +58,8 @@ export function collectRefTypes(
 
 export function schemaToTypeString(
   schema: SchemaLike | boolean,
-  inline = false
+  inline = false,
+  options: SchemaGenerationOptions = {}
 ): string {
   if (!schema) return 'unknown';
   if (schema === true) return 'any';
@@ -78,8 +88,8 @@ export function schemaToTypeString(
     return withNull(schema.$ref.split('/').pop() ?? 'unknown');
   }
 
-  // x-typescript-type override: use the value directly as the TypeScript type
-  if (schema['x-typescript-type']) {
+  // x-typescript-type override (opt-in only — value is injected verbatim)
+  if (options.allowXTypescriptType && schema['x-typescript-type']) {
     return withNull(schema['x-typescript-type']);
   }
 
@@ -96,14 +106,18 @@ export function schemaToTypeString(
       (s) => !(typeof s === 'object' && !Array.isArray(s) && s.type === 'null')
     );
     const hasNullMember = nonNullMembers.length < schema.oneOf.length;
-    const parts = nonNullMembers.map((s) => schemaToTypeString(s, inline));
+    const parts = nonNullMembers.map((s) =>
+      schemaToTypeString(s, inline, options)
+    );
     const known = parts.filter((p) => p !== 'unknown');
     const unique = [...new Set(known.length > 0 ? known : parts)];
     const result = unique.join(' | ');
     return hasNullMember || nullable ? `${result} | null` : result;
   }
   if (schema.anyOf) {
-    const parts = schema.anyOf.map((s) => schemaToTypeString(s, inline));
+    const parts = schema.anyOf.map((s) =>
+      schemaToTypeString(s, inline, options)
+    );
     const known = parts.filter((p) => p !== 'unknown');
     const unique = [...new Set(known.length > 0 ? known : parts)];
     return withNull(unique.join(' | '));
@@ -115,7 +129,7 @@ export function schemaToTypeString(
     );
     const hasNullMember = nonNullMembers.length < schema.allOf.length;
     const allOfType = nonNullMembers
-      .map((s) => schemaToTypeString(s, inline))
+      .map((s) => schemaToTypeString(s, inline, options))
       .join(' & ');
     return hasNullMember || nullable ? `${allOfType} | null` : allOfType;
   }
@@ -131,12 +145,12 @@ export function schemaToTypeString(
     schema.properties ||
     schema.additionalProperties
   ) {
-    return withNull(objectSchemaToTypeString(schema, inline));
+    return withNull(objectSchemaToTypeString(schema, inline, options));
   }
 
   if (types.includes('array')) {
     const itemType = schema.items
-      ? schemaToTypeString(schema.items, inline)
+      ? schemaToTypeString(schema.items, inline, options)
       : 'unknown';
     if (
       schema.minItems !== undefined &&
@@ -186,7 +200,11 @@ function isAnyAdditionalProperties(
   return false;
 }
 
-function objectSchemaToTypeString(schema: SchemaLike, inline = false): string {
+function objectSchemaToTypeString(
+  schema: SchemaLike,
+  inline = false,
+  options: SchemaGenerationOptions = {}
+): string {
   const properties = schema.properties ?? {};
   const required = new Set<string>(schema.required ?? []);
   const hasProperties = Object.keys(properties).length > 0;
@@ -200,7 +218,11 @@ function objectSchemaToTypeString(schema: SchemaLike, inline = false): string {
       schema.additionalProperties &&
       typeof schema.additionalProperties !== 'boolean'
     ) {
-      const valueType = schemaToTypeString(schema.additionalProperties, inline);
+      const valueType = schemaToTypeString(
+        schema.additionalProperties,
+        inline,
+        options
+      );
       return `Record<string, ${valueType}>`;
     }
     return 'Record<string, unknown>';
@@ -210,7 +232,7 @@ function objectSchemaToTypeString(schema: SchemaLike, inline = false): string {
     const fields = Object.entries(properties).map(([name, propSchema]) => {
       const optional = required.has(name) ? '' : '?';
       const jsdoc = buildPropertyJsdoc(propSchema, true);
-      return `${jsdoc}${name}${optional}: ${schemaToTypeString(propSchema, true)}`;
+      return `${jsdoc}${name}${optional}: ${schemaToTypeString(propSchema, true, options)}`;
     });
     if (anyAp) fields.push('[key: string]: any');
     return `{ ${fields.join('; ')} }`;
@@ -218,7 +240,7 @@ function objectSchemaToTypeString(schema: SchemaLike, inline = false): string {
 
   const lines = Object.entries(properties).map(([name, propSchema]) => {
     const isRequired = required.has(name);
-    const propType = schemaToTypeString(propSchema, false);
+    const propType = schemaToTypeString(propSchema, false, options);
     const jsdoc = buildPropertyJsdoc(propSchema);
     const optional = isRequired ? '' : '?';
     return `${jsdoc}  ${name}${optional}: ${propType};`;
@@ -241,7 +263,8 @@ function buildPropertyJsdoc(schema: SchemaLike, inline = false): string {
 
 function generateSchemaType(
   name: string,
-  schema: OpenAPIV3_1.SchemaObject
+  schema: OpenAPIV3_1.SchemaObject,
+  options: SchemaGenerationOptions = {}
 ): string {
   const s = schema as SchemaLike;
   const jsdocLines = ['/**'];
@@ -250,17 +273,21 @@ function generateSchemaType(
     jsdocLines.push(` * @example ${JSON.stringify(s.example)}`);
   }
   jsdocLines.push(' */');
-  const typeExpr = s['x-typescript-type'] ?? schemaToTypeString(s);
+  const typeExpr =
+    options.allowXTypescriptType && s['x-typescript-type']
+      ? s['x-typescript-type']
+      : schemaToTypeString(s, false, options);
   return `${jsdocLines.join('\n')}\nexport type ${name} = ${typeExpr};`;
 }
 
 const FILE_HEADER = '/* eslint-disable */\n/* prettier-ignore-start */';
 
 export function generateTypes(
-  schemas: Record<string, OpenAPIV3_1.SchemaObject>
+  schemas: Record<string, OpenAPIV3_1.SchemaObject>,
+  options: SchemaGenerationOptions = {}
 ): string {
   const body = Object.entries(schemas)
-    .map(([name, schema]) => generateSchemaType(name, schema))
+    .map(([name, schema]) => generateSchemaType(name, schema, options))
     .join('\n\n');
   return body ? `${FILE_HEADER}\n${body}` : '';
 }

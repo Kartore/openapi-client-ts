@@ -487,16 +487,41 @@ describe('generateTypes', () => {
   });
 
   describe('x-typescript-type override', () => {
-    test('uses x-typescript-type value directly instead of generating from schema', () => {
+    test('ignored by default (opt-in required)', () => {
       expect(
         generateTypes({
-          MaplibreStyleSpecification: {
+          MyType: {
             type: 'object',
-            'x-typescript-type':
-              "import('maplibre-gl').StyleSpecification & { metadata: MaplibreMetadata }",
-            properties: { version: { type: 'integer' } },
+            'x-typescript-type': 'SomeExternalType',
+            properties: { id: { type: 'string' } },
+            required: ['id'],
           } as never,
         })
+      ).toMatchInlineSnapshot(`
+        "/* eslint-disable */
+        /* prettier-ignore-start */
+        /**
+         * MyType
+         */
+        export type MyType = {
+          id: string;
+        };"
+      `);
+    });
+
+    test('uses x-typescript-type when allowXTypescriptType: true', () => {
+      expect(
+        generateTypes(
+          {
+            MaplibreStyleSpecification: {
+              type: 'object',
+              'x-typescript-type':
+                "import('maplibre-gl').StyleSpecification & { metadata: MaplibreMetadata }",
+              properties: { version: { type: 'integer' } },
+            } as never,
+          },
+          { allowXTypescriptType: true }
+        )
       ).toMatchInlineSnapshot(`
         "/* eslint-disable */
         /* prettier-ignore-start */
@@ -507,15 +532,18 @@ describe('generateTypes', () => {
       `);
     });
 
-    test('still outputs description as JSDoc when x-typescript-type is present', () => {
+    test('still outputs description as JSDoc when allowXTypescriptType: true', () => {
       expect(
-        generateTypes({
-          MyType: {
-            type: 'object',
-            description: 'A custom type',
-            'x-typescript-type': 'SomeExternalType',
-          } as never,
-        })
+        generateTypes(
+          {
+            MyType: {
+              type: 'object',
+              description: 'A custom type',
+              'x-typescript-type': 'SomeExternalType',
+            } as never,
+          },
+          { allowXTypescriptType: true }
+        )
       ).toMatchInlineSnapshot(`
         "/* eslint-disable */
         /* prettier-ignore-start */
@@ -523,6 +551,42 @@ describe('generateTypes', () => {
          * A custom type
          */
         export type MyType = SomeExternalType;"
+      `);
+    });
+
+    test('inline property schema also respects allowXTypescriptType', () => {
+      expect(
+        schemaToTypeString(
+          {
+            type: 'object',
+            properties: {
+              style: { 'x-typescript-type': 'StyleSpecification' },
+            },
+            required: ['style'],
+          },
+          false,
+          { allowXTypescriptType: true }
+        )
+      ).toMatchInlineSnapshot(`
+        "{
+          style: StyleSpecification;
+        }"
+      `);
+    });
+
+    test('inline property schema ignores x-typescript-type without opt-in', () => {
+      expect(
+        schemaToTypeString({
+          type: 'object',
+          properties: {
+            style: { 'x-typescript-type': 'StyleSpecification' },
+          },
+          required: ['style'],
+        })
+      ).toMatchInlineSnapshot(`
+        "{
+          style: any;
+        }"
       `);
     });
   });
