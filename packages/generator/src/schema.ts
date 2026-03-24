@@ -17,6 +17,7 @@ export type SchemaLike = {
   additionalProperties?: boolean | SchemaLike;
   minItems?: number;
   maxItems?: number;
+  'x-typescript-type'?: string;
 };
 
 export function collectRefTypes(
@@ -75,6 +76,11 @@ export function schemaToTypeString(
 
   if (schema.$ref) {
     return withNull(schema.$ref.split('/').pop() ?? 'unknown');
+  }
+
+  // x-typescript-type override: use the value directly as the TypeScript type
+  if (schema['x-typescript-type']) {
+    return withNull(schema['x-typescript-type']);
   }
 
   // enum arrays → union literal type (handles z.enum() and z.literal())
@@ -244,7 +250,8 @@ function generateSchemaType(
     jsdocLines.push(` * @example ${JSON.stringify(s.example)}`);
   }
   jsdocLines.push(' */');
-  return `${jsdocLines.join('\n')}\nexport type ${name} = ${schemaToTypeString(s)};`;
+  const typeExpr = s['x-typescript-type'] ?? schemaToTypeString(s);
+  return `${jsdocLines.join('\n')}\nexport type ${name} = ${typeExpr};`;
 }
 
 const FILE_HEADER = '/* eslint-disable */\n/* prettier-ignore-start */';

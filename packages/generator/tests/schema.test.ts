@@ -485,4 +485,45 @@ describe('generateTypes', () => {
   test('empty schemas returns empty string', () => {
     expect(generateTypes({})).toBe('');
   });
+
+  describe('x-typescript-type override', () => {
+    test('uses x-typescript-type value directly instead of generating from schema', () => {
+      expect(
+        generateTypes({
+          MaplibreStyleSpecification: {
+            type: 'object',
+            'x-typescript-type':
+              "import('maplibre-gl').StyleSpecification & { metadata: MaplibreMetadata }",
+            properties: { version: { type: 'integer' } },
+          } as never,
+        })
+      ).toMatchInlineSnapshot(`
+        "/* eslint-disable */
+        /* prettier-ignore-start */
+        /**
+         * MaplibreStyleSpecification
+         */
+        export type MaplibreStyleSpecification = import('maplibre-gl').StyleSpecification & { metadata: MaplibreMetadata };"
+      `);
+    });
+
+    test('still outputs description as JSDoc when x-typescript-type is present', () => {
+      expect(
+        generateTypes({
+          MyType: {
+            type: 'object',
+            description: 'A custom type',
+            'x-typescript-type': 'SomeExternalType',
+          } as never,
+        })
+      ).toMatchInlineSnapshot(`
+        "/* eslint-disable */
+        /* prettier-ignore-start */
+        /**
+         * A custom type
+         */
+        export type MyType = SomeExternalType;"
+      `);
+    });
+  });
 });
