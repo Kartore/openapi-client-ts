@@ -27,6 +27,11 @@ export interface GenerateOptions {
   typesImportPath?: string;
   /** Throw HTTPError when response.ok is false (default: true) */
   throwOnHttpError?: boolean;
+  /**
+   * When true, `x-typescript-type` on a schema is used as-is as the TypeScript type expression.
+   * Disabled by default — only enable when the OpenAPI spec comes from a trusted source.
+   */
+  allowXTypescriptType?: boolean;
 }
 
 function isSupportedVersion(spec: OpenAPI.Document): boolean {
@@ -60,7 +65,9 @@ export async function generateFromObject(
   const schemas: Record<string, OpenAPIV3_1.SchemaObject> =
     spec31.components?.schemas ?? {};
   const paths: OpenAPIV3_1.PathsObject = spec31.paths ?? {};
-  const types = generateTypes(schemas);
+  const types = generateTypes(schemas, {
+    allowXTypescriptType: options?.allowXTypescriptType,
+  });
   const client = generateClient(paths, {
     typesImportPath: options?.typesImportPath,
     throwOnHttpError: options?.throwOnHttpError,
