@@ -175,7 +175,7 @@ describe('generateFromObject', () => {
     	        get: (params?: {
     	            init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
     	          }): Promise<User> => {
-    	          const url = \`\${baseUrl}/users/\${id}\`;
+    	          const url = \`\${baseUrl}/users/\${encodeURIComponent(String(id))}\`;
     	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(_checkOk).then((r) => r.json()) as Promise<User>;
     	        },
     	      }),

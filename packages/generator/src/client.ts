@@ -31,7 +31,12 @@ export function buildPathValue(pathParts: string[]): string {
 }
 
 export function buildUrlExpression(pathParts: string[]): string {
-  return `\`\${baseUrl}/${segmentsToTemplateParts(pathParts).join('/')}\``;
+  const parts = pathParts.map((p) =>
+    isDynamicSegment(p)
+      ? `\${encodeURIComponent(String(${p.slice(1, -1)}))}`
+      : p
+  );
+  return `\`\${baseUrl}/${parts.join('/')}\``;
 }
 
 function segmentToPropKey(segment: string): string {

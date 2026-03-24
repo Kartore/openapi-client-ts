@@ -80,13 +80,13 @@ describe('buildUrlExpression', () => {
 
   test('dynamic path', () => {
     expect(buildUrlExpression(['users', '{id}'])).toBe(
-      '`${baseUrl}/users/${id}`'
+      '`${baseUrl}/users/${encodeURIComponent(String(id))}`'
     );
   });
 
   test('multiple dynamic segments', () => {
     expect(buildUrlExpression(['users', '{id}', 'posts', '{postId}'])).toBe(
-      '`${baseUrl}/users/${id}/posts/${postId}`'
+      '`${baseUrl}/users/${encodeURIComponent(String(id))}/posts/${encodeURIComponent(String(postId))}`'
     );
   });
 });
@@ -313,7 +313,7 @@ describe('generateClient', () => {
       	        get: (params?: {
       	            init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
       	          }): Promise<void> => {
-      	          const url = \`\${baseUrl}/users/\${id}\`;
+      	          const url = \`\${baseUrl}/users/\${encodeURIComponent(String(id))}\`;
       	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(_checkOk).then(() => undefined);
       	        },
       	      }),
@@ -371,7 +371,7 @@ describe('generateClient', () => {
       	        get: (params?: {
       	            init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
       	          }): Promise<void> => {
-      	          const url = \`\${baseUrl}/items/\${code}\`;
+      	          const url = \`\${baseUrl}/items/\${encodeURIComponent(String(code))}\`;
       	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(_checkOk).then(() => undefined);
       	        },
       	      }),
@@ -419,7 +419,7 @@ describe('generateClient', () => {
         	        get: (params?: {
         	            init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
         	          }): Promise<void> => {
-        	          const url = \`\${baseUrl}/users/\${id}\`;
+        	          const url = \`\${baseUrl}/users/\${encodeURIComponent(String(id))}\`;
         	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(_checkOk).then(() => undefined);
         	        },
         	      }),
@@ -489,7 +489,7 @@ describe('generateClient', () => {
       	        get: (params?: {
       	            init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
       	          }): Promise<User> => {
-      	          const url = \`\${baseUrl}/users/\${id}\`;
+      	          const url = \`\${baseUrl}/users/\${encodeURIComponent(String(id))}\`;
       	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(_checkOk).then((r) => r.json()) as Promise<User>;
       	        },
       	      }),
@@ -805,7 +805,7 @@ describe('generateClient', () => {
       	        get: (params?: {
       	            init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
       	          }): Promise<void> => {
-      	          const url = \`\${baseUrl}/users/\${id}\`;
+      	          const url = \`\${baseUrl}/users/\${encodeURIComponent(String(id))}\`;
       	          return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(_checkOk).then(() => undefined);
       	        },
       	      }),
@@ -868,7 +868,7 @@ describe('generateClient', () => {
       	            get: (params?: {
       	                init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
       	              }): Promise<void> => {
-      	              const url = \`\${baseUrl}/orgs/\${orgId}/members/\${memberId}\`;
+      	              const url = \`\${baseUrl}/orgs/\${encodeURIComponent(String(orgId))}/members/\${encodeURIComponent(String(memberId))}\`;
       	              return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(_checkOk).then(() => undefined);
       	            },
       	          }),
