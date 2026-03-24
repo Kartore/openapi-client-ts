@@ -101,7 +101,11 @@ describe('generateClient', () => {
     	  readonly response: Response;
     	  readonly responseText: string | null;
     	  readonly responseJson: unknown | null;
-    	  constructor(response: Response, responseText: string | null, responseJson: unknown | null) {
+    	  constructor(
+    	    response: Response,
+    	    responseText: string | null,
+    	    responseJson: unknown | null
+    	  ) {
     	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
     	    this.name = 'HTTPError';
     	    this.status = response.status;
@@ -116,8 +120,10 @@ describe('generateClient', () => {
     	  if (!response.ok) {
     	    const responseText = await response.text().catch(() => null);
     	    let responseJson: unknown | null = null;
-    	    if (responseText !== null) {
-    	      try { responseJson = JSON.parse(responseText); } catch {}
+    	    if (responseText) {
+    	      try {
+    	        responseJson = JSON.parse(responseText);
+    	      } catch {}
     	    }
     	    throw new HTTPError(response, responseText, responseJson);
     	  }
@@ -142,7 +148,11 @@ describe('generateClient', () => {
         	  readonly response: Response;
         	  readonly responseText: string | null;
         	  readonly responseJson: unknown | null;
-        	  constructor(response: Response, responseText: string | null, responseJson: unknown | null) {
+        	  constructor(
+        	    response: Response,
+        	    responseText: string | null,
+        	    responseJson: unknown | null
+        	  ) {
         	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
         	    this.name = 'HTTPError';
         	    this.status = response.status;
@@ -157,8 +167,10 @@ describe('generateClient', () => {
         	  if (!response.ok) {
         	    const responseText = await response.text().catch(() => null);
         	    let responseJson: unknown | null = null;
-        	    if (responseText !== null) {
-        	      try { responseJson = JSON.parse(responseText); } catch {}
+        	    if (responseText) {
+        	      try {
+        	        responseJson = JSON.parse(responseText);
+        	      } catch {}
         	    }
         	    throw new HTTPError(response, responseText, responseJson);
         	  }
@@ -200,7 +212,11 @@ describe('generateClient', () => {
       	  readonly response: Response;
       	  readonly responseText: string | null;
       	  readonly responseJson: unknown | null;
-      	  constructor(response: Response, responseText: string | null, responseJson: unknown | null) {
+      	  constructor(
+      	    response: Response,
+      	    responseText: string | null,
+      	    responseJson: unknown | null
+      	  ) {
       	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
       	    this.name = 'HTTPError';
       	    this.status = response.status;
@@ -215,8 +231,10 @@ describe('generateClient', () => {
       	  if (!response.ok) {
       	    const responseText = await response.text().catch(() => null);
       	    let responseJson: unknown | null = null;
-      	    if (responseText !== null) {
-      	      try { responseJson = JSON.parse(responseText); } catch {}
+      	    if (responseText) {
+      	      try {
+      	        responseJson = JSON.parse(responseText);
+      	      } catch {}
       	    }
       	    throw new HTTPError(response, responseText, responseJson);
       	  }
@@ -259,7 +277,11 @@ describe('generateClient', () => {
         	  readonly response: Response;
         	  readonly responseText: string | null;
         	  readonly responseJson: unknown | null;
-        	  constructor(response: Response, responseText: string | null, responseJson: unknown | null) {
+        	  constructor(
+        	    response: Response,
+        	    responseText: string | null,
+        	    responseJson: unknown | null
+        	  ) {
         	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
         	    this.name = 'HTTPError';
         	    this.status = response.status;
@@ -274,8 +296,10 @@ describe('generateClient', () => {
         	  if (!response.ok) {
         	    const responseText = await response.text().catch(() => null);
         	    let responseJson: unknown | null = null;
-        	    if (responseText !== null) {
-        	      try { responseJson = JSON.parse(responseText); } catch {}
+        	    if (responseText) {
+        	      try {
+        	        responseJson = JSON.parse(responseText);
+        	      } catch {}
         	    }
         	    throw new HTTPError(response, responseText, responseJson);
         	  }
@@ -330,7 +354,11 @@ describe('generateClient', () => {
       	  readonly response: Response;
       	  readonly responseText: string | null;
       	  readonly responseJson: unknown | null;
-      	  constructor(response: Response, responseText: string | null, responseJson: unknown | null) {
+      	  constructor(
+      	    response: Response,
+      	    responseText: string | null,
+      	    responseJson: unknown | null
+      	  ) {
       	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
       	    this.name = 'HTTPError';
       	    this.status = response.status;
@@ -345,8 +373,10 @@ describe('generateClient', () => {
       	  if (!response.ok) {
       	    const responseText = await response.text().catch(() => null);
       	    let responseJson: unknown | null = null;
-      	    if (responseText !== null) {
-      	      try { responseJson = JSON.parse(responseText); } catch {}
+      	    if (responseText) {
+      	      try {
+      	        responseJson = JSON.parse(responseText);
+      	      } catch {}
       	    }
       	    throw new HTTPError(response, responseText, responseJson);
       	  }
@@ -399,7 +429,11 @@ describe('generateClient', () => {
       	  readonly response: Response;
       	  readonly responseText: string | null;
       	  readonly responseJson: unknown | null;
-      	  constructor(response: Response, responseText: string | null, responseJson: unknown | null) {
+      	  constructor(
+      	    response: Response,
+      	    responseText: string | null,
+      	    responseJson: unknown | null
+      	  ) {
       	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
       	    this.name = 'HTTPError';
       	    this.status = response.status;
@@ -414,8 +448,10 @@ describe('generateClient', () => {
       	  if (!response.ok) {
       	    const responseText = await response.text().catch(() => null);
       	    let responseJson: unknown | null = null;
-      	    if (responseText !== null) {
-      	      try { responseJson = JSON.parse(responseText); } catch {}
+      	    if (responseText) {
+      	      try {
+      	        responseJson = JSON.parse(responseText);
+      	      } catch {}
       	    }
       	    throw new HTTPError(response, responseText, responseJson);
       	  }
@@ -458,7 +494,11 @@ describe('generateClient', () => {
         	  readonly response: Response;
         	  readonly responseText: string | null;
         	  readonly responseJson: unknown | null;
-        	  constructor(response: Response, responseText: string | null, responseJson: unknown | null) {
+        	  constructor(
+        	    response: Response,
+        	    responseText: string | null,
+        	    responseJson: unknown | null
+        	  ) {
         	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
         	    this.name = 'HTTPError';
         	    this.status = response.status;
@@ -473,8 +513,10 @@ describe('generateClient', () => {
         	  if (!response.ok) {
         	    const responseText = await response.text().catch(() => null);
         	    let responseJson: unknown | null = null;
-        	    if (responseText !== null) {
-        	      try { responseJson = JSON.parse(responseText); } catch {}
+        	    if (responseText) {
+        	      try {
+        	        responseJson = JSON.parse(responseText);
+        	      } catch {}
         	    }
         	    throw new HTTPError(response, responseText, responseJson);
         	  }
@@ -539,7 +581,11 @@ describe('generateClient', () => {
       	  readonly response: Response;
       	  readonly responseText: string | null;
       	  readonly responseJson: unknown | null;
-      	  constructor(response: Response, responseText: string | null, responseJson: unknown | null) {
+      	  constructor(
+      	    response: Response,
+      	    responseText: string | null,
+      	    responseJson: unknown | null
+      	  ) {
       	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
       	    this.name = 'HTTPError';
       	    this.status = response.status;
@@ -554,8 +600,10 @@ describe('generateClient', () => {
       	  if (!response.ok) {
       	    const responseText = await response.text().catch(() => null);
       	    let responseJson: unknown | null = null;
-      	    if (responseText !== null) {
-      	      try { responseJson = JSON.parse(responseText); } catch {}
+      	    if (responseText) {
+      	      try {
+      	        responseJson = JSON.parse(responseText);
+      	      } catch {}
       	    }
       	    throw new HTTPError(response, responseText, responseJson);
       	  }
@@ -598,7 +646,11 @@ describe('generateClient', () => {
         	  readonly response: Response;
         	  readonly responseText: string | null;
         	  readonly responseJson: unknown | null;
-        	  constructor(response: Response, responseText: string | null, responseJson: unknown | null) {
+        	  constructor(
+        	    response: Response,
+        	    responseText: string | null,
+        	    responseJson: unknown | null
+        	  ) {
         	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
         	    this.name = 'HTTPError';
         	    this.status = response.status;
@@ -613,8 +665,10 @@ describe('generateClient', () => {
         	  if (!response.ok) {
         	    const responseText = await response.text().catch(() => null);
         	    let responseJson: unknown | null = null;
-        	    if (responseText !== null) {
-        	      try { responseJson = JSON.parse(responseText); } catch {}
+        	    if (responseText) {
+        	      try {
+        	        responseJson = JSON.parse(responseText);
+        	      } catch {}
         	    }
         	    throw new HTTPError(response, responseText, responseJson);
         	  }
@@ -673,7 +727,11 @@ describe('generateClient', () => {
       	  readonly response: Response;
       	  readonly responseText: string | null;
       	  readonly responseJson: unknown | null;
-      	  constructor(response: Response, responseText: string | null, responseJson: unknown | null) {
+      	  constructor(
+      	    response: Response,
+      	    responseText: string | null,
+      	    responseJson: unknown | null
+      	  ) {
       	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
       	    this.name = 'HTTPError';
       	    this.status = response.status;
@@ -688,8 +746,10 @@ describe('generateClient', () => {
       	  if (!response.ok) {
       	    const responseText = await response.text().catch(() => null);
       	    let responseJson: unknown | null = null;
-      	    if (responseText !== null) {
-      	      try { responseJson = JSON.parse(responseText); } catch {}
+      	    if (responseText) {
+      	      try {
+      	        responseJson = JSON.parse(responseText);
+      	      } catch {}
       	    }
       	    throw new HTTPError(response, responseText, responseJson);
       	  }
@@ -748,7 +808,11 @@ describe('generateClient', () => {
       	  readonly response: Response;
       	  readonly responseText: string | null;
       	  readonly responseJson: unknown | null;
-      	  constructor(response: Response, responseText: string | null, responseJson: unknown | null) {
+      	  constructor(
+      	    response: Response,
+      	    responseText: string | null,
+      	    responseJson: unknown | null
+      	  ) {
       	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
       	    this.name = 'HTTPError';
       	    this.status = response.status;
@@ -763,8 +827,10 @@ describe('generateClient', () => {
       	  if (!response.ok) {
       	    const responseText = await response.text().catch(() => null);
       	    let responseJson: unknown | null = null;
-      	    if (responseText !== null) {
-      	      try { responseJson = JSON.parse(responseText); } catch {}
+      	    if (responseText) {
+      	      try {
+      	        responseJson = JSON.parse(responseText);
+      	      } catch {}
       	    }
       	    throw new HTTPError(response, responseText, responseJson);
       	  }
@@ -824,7 +890,11 @@ describe('generateClient', () => {
       	  readonly response: Response;
       	  readonly responseText: string | null;
       	  readonly responseJson: unknown | null;
-      	  constructor(response: Response, responseText: string | null, responseJson: unknown | null) {
+      	  constructor(
+      	    response: Response,
+      	    responseText: string | null,
+      	    responseJson: unknown | null
+      	  ) {
       	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
       	    this.name = 'HTTPError';
       	    this.status = response.status;
@@ -839,8 +909,10 @@ describe('generateClient', () => {
       	  if (!response.ok) {
       	    const responseText = await response.text().catch(() => null);
       	    let responseJson: unknown | null = null;
-      	    if (responseText !== null) {
-      	      try { responseJson = JSON.parse(responseText); } catch {}
+      	    if (responseText) {
+      	      try {
+      	        responseJson = JSON.parse(responseText);
+      	      } catch {}
       	    }
       	    throw new HTTPError(response, responseText, responseJson);
       	  }
@@ -898,7 +970,11 @@ describe('generateClient', () => {
       	  readonly response: Response;
       	  readonly responseText: string | null;
       	  readonly responseJson: unknown | null;
-      	  constructor(response: Response, responseText: string | null, responseJson: unknown | null) {
+      	  constructor(
+      	    response: Response,
+      	    responseText: string | null,
+      	    responseJson: unknown | null
+      	  ) {
       	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
       	    this.name = 'HTTPError';
       	    this.status = response.status;
@@ -913,8 +989,10 @@ describe('generateClient', () => {
       	  if (!response.ok) {
       	    const responseText = await response.text().catch(() => null);
       	    let responseJson: unknown | null = null;
-      	    if (responseText !== null) {
-      	      try { responseJson = JSON.parse(responseText); } catch {}
+      	    if (responseText) {
+      	      try {
+      	        responseJson = JSON.parse(responseText);
+      	      } catch {}
       	    }
       	    throw new HTTPError(response, responseText, responseJson);
       	  }
@@ -982,7 +1060,11 @@ describe('generateClient', () => {
       	  readonly response: Response;
       	  readonly responseText: string | null;
       	  readonly responseJson: unknown | null;
-      	  constructor(response: Response, responseText: string | null, responseJson: unknown | null) {
+      	  constructor(
+      	    response: Response,
+      	    responseText: string | null,
+      	    responseJson: unknown | null
+      	  ) {
       	    super(\`HTTP Error: \${response.status} \${response.statusText}\`);
       	    this.name = 'HTTPError';
       	    this.status = response.status;
@@ -997,8 +1079,10 @@ describe('generateClient', () => {
       	  if (!response.ok) {
       	    const responseText = await response.text().catch(() => null);
       	    let responseJson: unknown | null = null;
-      	    if (responseText !== null) {
-      	      try { responseJson = JSON.parse(responseText); } catch {}
+      	    if (responseText) {
+      	      try {
+      	        responseJson = JSON.parse(responseText);
+      	      } catch {}
       	    }
       	    throw new HTTPError(response, responseText, responseJson);
       	  }
