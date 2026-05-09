@@ -140,7 +140,7 @@ describe('generateFromObject', () => {
     expect(result.client).toMatchInlineSnapshot(`
     	"/* eslint-disable */
     	/* prettier-ignore-start */
-    	import type { User } from './types';
+    	import type { User } from './types.js';
 
     	export class HTTPError extends Error {
     	  readonly status: number;

@@ -265,7 +265,7 @@ export function generateClient(
     );
   }
 
-  const typesImportPath = options?.typesImportPath ?? './types';
+  const typesImportPath = options?.typesImportPath ?? './types.js';
   const importLine =
     referencedTypes.size > 0
       ? `import type { ${[...referencedTypes].sort().join(', ')} } from '${typesImportPath}';\n\n`

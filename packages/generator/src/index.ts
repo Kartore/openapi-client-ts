@@ -23,7 +23,7 @@ export interface GenerateResult {
 export interface GenerateOptions {
   /** Target TanStack Query framework */
   tanstackQuery?: QueryFramework;
-  /** Import path used in client.ts to reference types.ts (default: './types') */
+  /** Import path used in client.ts to reference types.ts (default: './types.js') */
   typesImportPath?: string;
   /** Throw HTTPError when response.ok is false (default: true) */
   throwOnHttpError?: boolean;
@@ -77,9 +77,9 @@ export async function generateFromObject(
     : null;
 
   const indexLines = ['/* eslint-disable */', '/* prettier-ignore-start */'];
-  if (types) indexLines.push(`export * from './types';`);
-  indexLines.push(`export * from './client';`);
-  if (query !== null) indexLines.push(`export * from './query';`);
+  if (types) indexLines.push(`export * from './types.js';`);
+  indexLines.push(`export * from './client.js';`);
+  if (query !== null) indexLines.push(`export * from './query.js';`);
 
   return { types, client, query, index: indexLines.join('\n') + '\n' };
 }

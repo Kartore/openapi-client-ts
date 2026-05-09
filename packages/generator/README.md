@@ -157,7 +157,7 @@ export type User = {
 ### `client.ts`
 
 ```ts
-import type { User } from './types';
+import type { User } from './types.js';
 
 export function apiClient(baseUrl: string, clientOptions?: { ... }) {
   return {
