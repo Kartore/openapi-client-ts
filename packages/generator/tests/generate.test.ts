@@ -85,6 +85,14 @@ describe('generateFromObject', () => {
         paths: {},
       })
     ).rejects.toThrow('unsupported OpenAPI version');
+
+    await expect(
+      generateFromObject({
+        openapi: '3.2.0',
+        info: { title: 'x', version: '1' },
+        paths: {},
+      })
+    ).rejects.toThrow('unsupported OpenAPI version');
   });
 
   test('accepts OpenAPI 3.0.x spec', async () => {

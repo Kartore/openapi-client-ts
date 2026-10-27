@@ -3,7 +3,7 @@
     "oxlint": {
       "initialization_options": {
         "settings": {
-          "configPath": "./.oxlintrc.json",
+          "configPath": "./vite.config.ts",
           "run": "onType",
           "disableNestedConfig": false,
           "fixKind": "safe_fix",
@@ -80,7 +80,7 @@
       ]
     },
     "JavaScript": {
-      "language_servers": ["!typescript-language-server", "tsgo", "..."],
+      "language_servers": ["vtsls", "!typescript-language-server", "..."],
       "format_on_save": "on",
       "prettier": {
         "allowed": false
@@ -97,7 +97,7 @@
       ]
     },
     "JSX": {
-      "language_servers": ["!typescript-language-server", "tsgo", "..."],
+      "language_servers": ["vtsls", "!typescript-language-server", "..."],
       "format_on_save": "on",
       "prettier": {
         "allowed": false
@@ -205,7 +205,7 @@
       ]
     },
     "TypeScript": {
-      "language_servers": ["!typescript-language-server", "tsgo", "..."],
+      "language_servers": ["vtsls", "!typescript-language-server", "..."],
       "format_on_save": "on",
       "prettier": {
         "allowed": false
@@ -222,7 +222,7 @@
       ]
     },
     "TSX": {
-      "language_servers": ["!typescript-language-server", "tsgo", "..."],
+      "language_servers": ["vtsls", "!typescript-language-server", "..."],
       "format_on_save": "on",
       "prettier": {
         "allowed": false
