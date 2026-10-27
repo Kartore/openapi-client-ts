@@ -1,5 +1,5 @@
 import { upgrade, validate } from '@scalar/openapi-parser';
-import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types';
+import type { OpenAPIV3_1 } from '@scalar/openapi-types';
 
 import { generateClient } from './client';
 import { type QueryFramework, generateQuery } from './query';
@@ -34,7 +34,10 @@ export interface GenerateOptions {
   allowXTypescriptType?: boolean;
 }
 
-function isSupportedVersion(spec: OpenAPI.Document): boolean {
+function isSupportedVersion(spec: unknown): boolean {
+  if (typeof spec !== 'object' || spec === null || !('openapi' in spec)) {
+    return false;
+  }
   const v = spec.openapi;
   return (
     v === '3.0.0' ||
@@ -61,10 +64,15 @@ export async function generateFromObject(
   }
 
   // Normalize to OpenAPI 3.1 so downstream functions work with a single concrete type
-  const { specification: spec31 } = upgrade(spec as Record<string, unknown>);
-  const schemas: Record<string, OpenAPIV3_1.SchemaObject> =
-    spec31.components?.schemas ?? {};
-  const paths: OpenAPIV3_1.PathsObject = spec31.paths ?? {};
+  const { specification: spec31 } = upgrade(spec);
+  if (!spec31) {
+    throw new Error('No specification found after OpenAPI upgrade');
+  }
+  const schemas = (spec31.components?.schemas ?? {}) as unknown as Record<
+    string,
+    OpenAPIV3_1.SchemaObject
+  >;
+  const paths = (spec31.paths ?? {}) as unknown as OpenAPIV3_1.PathsObject;
   const types = generateTypes(schemas, {
     allowXTypescriptType: options?.allowXTypescriptType,
   });

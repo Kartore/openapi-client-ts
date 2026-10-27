@@ -36,17 +36,24 @@
     "prepublishOnly": "vp run build"
   },
   "dependencies": {
-    "@scalar/json-magic": "^0.12.4",
-    "@scalar/openapi-parser": "^0.25.6",
-    "@scalar/openapi-types": "0.6.1"
+    "@scalar/json-magic": "^0.16.0",
+    "@scalar/openapi-parser": "^0.29.14",
+    "@scalar/openapi-types": "0.9.8"
   },
   "devDependencies": {
     "@tanstack/react-query": "catalog:",
     "@tanstack/svelte-query": "catalog:",
     "@types/node": "catalog:",
-    "@typescript/native-preview": "catalog:",
     "@vitest/coverage-v8": "catalog:",
-    "bumpp": "^11.0.1",
+    "bumpp": "^12.3.0",
+    "typescript": "catalog:",
     "vite-plus": "catalog:"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "26.12.1",
+      "onFail": "download"
+    }
   }
 }
