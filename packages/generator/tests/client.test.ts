@@ -853,7 +853,7 @@ describe('generateClient', () => {
       	          init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
       	        }): Promise<void> => {
       	        const searchParams = new URLSearchParams();
-      	        if (params?.page !== undefined) searchParams.set('page', String(params.page));
+      	        if (params?.page !== undefined && params?.page !== null) searchParams.set('page', String(params.page));
       	        const qs = searchParams.toString();
       	        const url = \`\${baseUrl}/users\` + (qs ? \`?\${qs}\` : '');
       	        return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(_checkOk).then(() => undefined);
@@ -862,6 +862,29 @@ describe('generateClient', () => {
       	  };
       	}"
       `);
+    });
+
+    test('nullable integer query param generates nullable type and null guard', () => {
+      const generated = generateClient({
+        '/tiles': {
+          get: {
+            parameters: [
+              {
+                in: 'query',
+                name: 'r_min',
+                schema: { type: 'integer', nullable: true },
+                required: false,
+              },
+            ],
+            responses: {},
+          },
+        },
+      });
+
+      expect(generated).toContain('r_min?: number | null;');
+      expect(generated).toContain(
+        "if (params?.r_min !== undefined && params?.r_min !== null) searchParams.set('r_min', String(params.r_min));"
+      );
     });
 
     test('required query param makes params non-optional', () => {
@@ -935,7 +958,7 @@ describe('generateClient', () => {
       	          init?: Omit<RequestInit, 'headers'> & { headers?: Record<string, string> };
       	        }): Promise<void> => {
       	        const searchParams = new URLSearchParams();
-      	        if (params?.q !== undefined) searchParams.set('q', String(params.q));
+      	        if (params?.q !== undefined && params?.q !== null) searchParams.set('q', String(params.q));
       	        const qs = searchParams.toString();
       	        const url = \`\${baseUrl}/users\` + (qs ? \`?\${qs}\` : '');
       	        return _fetch(url, { ..._baseInit, ...params?.init, headers: { ..._baseInit?.headers, ...params?.init?.headers }, method: 'GET' }).then(_checkOk).then(() => undefined);
