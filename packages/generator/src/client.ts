@@ -184,7 +184,7 @@ function generateNodeLines(
       lines.push(`${bodyIndent}const searchParams = new URLSearchParams();`);
       for (const qp of queryParams) {
         lines.push(
-          `${bodyIndent}if (params?.${qp.name} !== undefined) searchParams.set('${qp.name}', String(params.${qp.name}));`
+          `${bodyIndent}if (params?.${qp.name} !== undefined && params?.${qp.name} !== null) searchParams.set('${qp.name}', String(params.${qp.name}));`
         );
       }
       lines.push(`${bodyIndent}const qs = searchParams.toString();`);
